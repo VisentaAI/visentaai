@@ -1,4 +1,5 @@
 import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 const Footer = () => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -13,9 +14,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <span className="text-white font-bold text-xl">V</span>
-              </div>
+              <img src={logo} alt="VisentaAI Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-bold gradient-text">VisentaAI</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
