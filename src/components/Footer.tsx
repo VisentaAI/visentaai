@@ -1,15 +1,14 @@
 import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-
 const Footer = () => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({
+        behavior: "smooth"
+      });
     }
   };
-
-  return (
-    <footer className="bg-gradient-to-b from-background to-muted border-t border-border">
+  return <footer className="bg-gradient-to-b from-background to-muted border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-4">
@@ -113,8 +112,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                <span className="text-muted-foreground">
-                  Jakarta Selatan<br />
+                <span className="text-muted-foreground">Indonesia<br />
                   Indonesia
                 </span>
               </li>
@@ -124,9 +122,7 @@ const Footer = () => {
 
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-muted-foreground text-sm">
-              © 2024 VisentaAI. All rights reserved.
-            </p>
+            <p className="text-muted-foreground text-sm">© 2025 VisentaAI. All rights reserved.</p>
             <div className="flex space-x-6">
               <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Privacy Policy
@@ -141,8 +137,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
