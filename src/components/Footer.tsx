@@ -27,7 +27,7 @@ const Footer = () => {
               <a href="https://x.com/VisentaAI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="https://www.instagram.com/visentaai" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+              <a href="https://www.instagram.com/visentaai?igsh=MXQ5MGlnamd1YXRsZg==" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
                 <Instagram className="w-5 h-5" />
               </a>
             </div>
