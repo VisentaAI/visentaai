@@ -13,7 +13,7 @@ const ChatDemo = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Halo! Saya asisten AI VisentaAI. Saya siap membantu Anda belajar. Apa yang ingin Anda pelajari hari ini?"
+      content: "Halo! Saya asisten VisentaAI. Saya siap membantu Anda belajar. Apa yang ingin Anda pelajari hari ini?"
     }
   ]);
   const [input, setInput] = useState("");
