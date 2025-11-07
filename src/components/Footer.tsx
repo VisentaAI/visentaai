@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Mail, MapPin, Phone, Twitter, Instagram } from "lucide-react";
 import logo from "@/assets/logo.png";
 const Footer = () => {
   const scrollToSection = (id: string) => {
@@ -20,18 +20,15 @@ const Footer = () => {
             <p className="text-muted-foreground leading-relaxed">
               Platform pembelajaran berbasis AI yang revolusioner untuk masa depan pendidikan yang lebih cerdas.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+            <p className="text-sm text-muted-foreground mt-4">
+              <span className="font-semibold text-foreground">Founder & CEO:</span> RestuAlfauzi
+            </p>
+            <div className="flex space-x-4 mt-4">
+              <a href="https://x.com/VisentaAI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+              <a href="https://www.instagram.com/visentaai" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
-                <Linkedin className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -71,27 +68,27 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4">Sumber Daya</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
                   Blog
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/dokumentasi" className="text-muted-foreground hover:text-primary transition-colors">
                   Dokumentasi
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/tutorial" className="text-muted-foreground hover:text-primary transition-colors">
                   Tutorial
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
                   FAQ
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/support" className="text-muted-foreground hover:text-primary transition-colors">
                   Support
                 </a>
               </li>
