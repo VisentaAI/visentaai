@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bot, User } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   role: "user" | "assistant";
@@ -17,17 +18,104 @@ const ChatDemo = () => {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const demoResponses = [
-    "Pertanyaan yang bagus! Mari saya jelaskan dengan cara yang mudah dipahami...",
-    "Saya akan membantu Anda memahami konsep ini dengan contoh praktis...",
-    "Berdasarkan gaya belajar Anda, saya merekomendasikan pendekatan berikut...",
-    "Mari kita pecah topik ini menjadi bagian-bagian yang lebih kecil...",
-    "Saya mendeteksi Anda lebih suka pembelajaran visual. Mari gunakan diagram..."
-  ];
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const streamChat = async (userMessages: Message[]) => {
+    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+    
+    try {
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: userMessages }),
+      });
+
+      if (!resp.ok) {
+        const errorData = await resp.json();
+        throw new Error(errorData.error || "Gagal memulai streaming");
+      }
+
+      if (!resp.body) throw new Error("Tidak ada response body");
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let streamDone = false;
+      let assistantContent = "";
+
+      // Add empty assistant message that we'll update
+      setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = {
+                  role: "assistant",
+                  content: assistantContent
+                };
+                return newMessages;
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      setIsTyping(false);
+    } catch (error) {
+      console.error("Chat error:", error);
+      setIsTyping(false);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Terjadi kesalahan saat menghubungi AI",
+        variant: "destructive",
+      });
+      // Remove the empty assistant message on error
+      setMessages(prev => prev.slice(0, -1));
+    }
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || isTyping) return;
 
     const userMessage: Message = {
       role: "user",
@@ -38,15 +126,7 @@ const ChatDemo = () => {
     setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
-      const aiMessage: Message = {
-        role: "assistant",
-        content: randomResponse
-      };
-      setMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
+    await streamChat([...messages, userMessage]);
   };
 
   return (
@@ -118,6 +198,7 @@ const ChatDemo = () => {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="p-6 border-t border-border bg-background/50">
@@ -125,13 +206,15 @@ const ChatDemo = () => {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                onKeyPress={(e) => e.key === "Enter" && !isTyping && handleSend()}
                 placeholder="Tanyakan sesuatu..."
                 className="flex-1 glass border-0"
+                disabled={isTyping}
               />
               <Button 
                 onClick={handleSend}
                 className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                disabled={isTyping}
               >
                 <Send className="w-5 h-5" />
               </Button>
