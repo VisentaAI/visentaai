@@ -5,13 +5,101 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 10; // requests per minute
+const RATE_WINDOW = 60000; // 1 minute in ms
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Rate limiting based on IP or user agent
+    const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    if (!checkRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ error: "Terlalu banyak permintaan. Silakan coba lagi nanti." }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const { messages } = await req.json();
+    
+    // Input validation
+    if (!messages || !Array.isArray(messages)) {
+      return new Response(
+        JSON.stringify({ error: "Format pesan tidak valid." }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+    
+    if (messages.length === 0 || messages.length > 50) {
+      return new Response(
+        JSON.stringify({ error: "Jumlah pesan harus antara 1 dan 50." }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+    
+    // Validate each message
+    for (const msg of messages) {
+      if (!msg.role || !msg.content) {
+        return new Response(
+          JSON.stringify({ error: "Setiap pesan harus memiliki role dan content." }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      if (!["user", "assistant", "system"].includes(msg.role)) {
+        return new Response(
+          JSON.stringify({ error: "Role pesan tidak valid." }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      if (typeof msg.content !== "string" || msg.content.length > 4000) {
+        return new Response(
+          JSON.stringify({ error: "Content pesan harus berupa string dengan maksimal 4000 karakter." }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -40,6 +128,9 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
+      // Log detailed errors server-side only
+      console.error("[INTERNAL] AI gateway error:", { status: response.status });
+      
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Batas permintaan terlampaui, silakan coba lagi nanti." }),
@@ -58,12 +149,12 @@ serve(async (req) => {
           }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      
+      // Generic error message for all other cases
       return new Response(
-        JSON.stringify({ error: "Terjadi kesalahan pada AI gateway" }),
+        JSON.stringify({ error: "Layanan sementara tidak tersedia. Silakan coba lagi nanti." }),
         {
-          status: 500,
+          status: 503,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
@@ -73,9 +164,10 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
-    console.error("Chat error:", e);
+    // Log detailed error server-side only
+    console.error("[INTERNAL] Chat error:", e instanceof Error ? e.message : "Unknown error");
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Terjadi kesalahan tidak diketahui" }),
+      JSON.stringify({ error: "Terjadi kesalahan. Silakan coba lagi nanti." }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
