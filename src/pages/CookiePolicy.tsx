@@ -122,7 +122,7 @@ const CookiePolicy = () => {
               </section>
 
               <p className="text-sm text-muted-foreground mt-8 pt-4 border-t border-border">
-                Terakhir diperbarui: Januari 2025
+                Terakhir diperbarui: 08 November 2025
               </p>
             </div>
           </ScrollArea>
