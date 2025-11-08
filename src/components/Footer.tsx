@@ -120,13 +120,13 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-muted-foreground text-sm">© 2025 VisentaAI. All rights reserved.</p>
             <div className="flex space-x-6">
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <a href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <a href="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Terms of Service
               </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <a href="/cookie-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Cookie Policy
               </a>
             </div>

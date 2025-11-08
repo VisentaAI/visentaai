@@ -160,7 +160,7 @@ const ChatDemo = () => {
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex items-start space-x-3 ${
+                className={`flex items-start space-x-3 animate-fade-in ${
                   message.role === "user" ? "flex-row-reverse space-x-reverse" : ""
                 }`}
               >
@@ -175,12 +175,12 @@ const ChatDemo = () => {
                     <Bot className="w-5 h-5 text-foreground" />
                   )}
                 </div>
-                <div className={`max-w-[75%] rounded-2xl p-4 ${
+                <div className={`max-w-[75%] rounded-2xl p-4 shadow-md ${
                   message.role === "user"
                     ? "bg-gradient-to-br from-primary to-secondary text-white"
-                    : "glass"
+                    : "glass border border-border/50"
                 }`}>
-                  <p className="leading-relaxed">{message.content}</p>
+                  <p className="leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
                 </div>
               </div>
             ))}
