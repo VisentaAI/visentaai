@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to your VisentaAI project
 
 ## Project info
 
@@ -8,7 +8,7 @@
 
 There are several ways of editing your application.
 
-**Use Lovable**
+**Use VisentaAI**
 
 Simply visit the [Lovable Project](https://lovable.dev/projects/45e9e6a3-b421-459d-8364-2a8661650697) and start prompting.
 
@@ -16,7 +16,7 @@ Changes made via Lovable will be committed automatically to this repo.
 
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in VisentaAI.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -64,7 +64,7 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/45e9e6a3-b421-459d-8364-2a8661650697) and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
+## Can I connect a custom domain to my VisentaAI project?
 
 Yes, you can!
 
