@@ -1,12 +1,19 @@
 import { Mail, MapPin, Phone, Twitter, Instagram } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
+
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth"
-      });
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: id } });
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
   return <footer className="bg-gradient-to-b from-background to-muted border-t border-border">
@@ -37,27 +44,27 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4">Navigasi</h3>
             <ul className="space-y-3">
               <li>
-                <button onClick={() => scrollToSection("home")} className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => scrollToSection("home")} className="text-left text-muted-foreground hover:text-primary transition-colors">
                   Home
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("features")} className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => scrollToSection("features")} className="text-left text-muted-foreground hover:text-primary transition-colors">
                   Fitur
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("about")} className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => scrollToSection("about")} className="text-left text-muted-foreground hover:text-primary transition-colors">
                   Tentang
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("demo")} className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => scrollToSection("demo")} className="text-left text-muted-foreground hover:text-primary transition-colors">
                   Demo
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("testimonials")} className="text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => scrollToSection("testimonials")} className="text-left text-muted-foreground hover:text-primary transition-colors">
                   Testimoni
                 </button>
               </li>

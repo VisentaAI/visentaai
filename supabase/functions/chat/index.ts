@@ -45,7 +45,9 @@ serve(async (req) => {
       );
     }
 
-    const { messages } = await req.json();
+    const { messages, conversationId, category } = await req.json();
+    
+    console.log("Processing chat request:", { conversationId, category, messagesLength: messages?.length });
     
     // Input validation
     if (!messages || !Array.isArray(messages)) {
@@ -108,6 +110,17 @@ serve(async (req) => {
 
     console.log("Received chat request with", messages.length, "messages");
 
+    // System prompts for different categories
+    const systemPrompts: Record<string, string> = {
+      general: "Anda adalah VisentaAI, asisten AI yang membantu menjawab berbagai pertanyaan dengan ramah dan informatif dalam bahasa Indonesia.",
+      math: "Anda adalah tutor matematika yang ahli di VisentaAI. Bantu menjelaskan konsep matematika dengan jelas, berikan langkah-langkah penyelesaian soal yang detail, dan pastikan siswa memahami konsepnya. Jawab dalam bahasa Indonesia.",
+      language: "Anda adalah tutor bahasa yang berpengalaman di VisentaAI. Bantu siswa mempelajari bahasa, tata bahasa, kosakata, dan percakapan dengan metode yang mudah dipahami. Jawab dalam bahasa Indonesia.",
+      science: "Anda adalah tutor sains yang kompeten di VisentaAI. Jelaskan konsep fisika, kimia, biologi, dan sains lainnya dengan cara yang menarik dan mudah dipahami. Jawab dalam bahasa Indonesia.",
+      support: "Anda adalah customer support VisentaAI yang membantu pengguna melaporkan masalah, memberikan saran, dan menjawab pertanyaan tentang aplikasi dengan profesional dan ramah. Jawab dalam bahasa Indonesia."
+    };
+
+    const systemPrompt = systemPrompts[category] || systemPrompts.general;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -119,7 +132,7 @@ serve(async (req) => {
         messages: [
           { 
             role: "system", 
-            content: "Anda adalah asisten AI yang membantu dan ramah. Jawab pertanyaan pengguna dengan jelas dan informatif dalam bahasa Indonesia." 
+            content: systemPrompt
           },
           ...messages,
         ],

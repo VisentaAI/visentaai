@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
-import heroImage from "@/assets/hero-ai.png";
+import heroImage from "@/assets/hero-ai-new.png";
 
 const Hero = () => {
   const scrollToDemo = () => {
