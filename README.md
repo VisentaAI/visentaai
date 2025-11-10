@@ -62,7 +62,7 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/45e9e6a3-b421-459d-8364-2a8661650697) and click on Share -> Publish.
+Simply open [VisentaAI](https://lovable.dev/projects/45e9e6a3-b421-459d-8364-2a8661650697) and click on Share -> Publish.
 
 ## Can I connect a custom domain to my VisentaAI project?
 
