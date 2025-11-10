@@ -10,7 +10,7 @@ There are several ways of editing your application.
 
 **Use VisentaAI**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/45e9e6a3-b421-459d-8364-2a8661650697) and start prompting.
+Simply visit the [VisentaAI Project](https://lovable.dev/projects/45e9e6a3-b421-459d-8364-2a8661650697) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
