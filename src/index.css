@@ -110,7 +110,22 @@ All colors MUST be HSL.
   }
   
   .hover-lift:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px) scale(1.02);
     box-shadow: var(--shadow-lg);
+  }
+
+  /* Hover scale effect */
+  .hover-scale {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  /* Pulse delay for animations */
+  .delay-1000 {
+    animation-delay: 1s;
   }
 }

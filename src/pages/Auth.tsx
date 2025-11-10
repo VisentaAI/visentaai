@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -15,6 +15,8 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -111,16 +113,78 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Link reset password telah dikirim ke email Anda!");
+        setShowForgotPassword(false);
+        setResetEmail("");
+      }
+    } catch (error: any) {
+      toast.error("Terjadi kesalahan saat mengirim reset password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">VisentaAI</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center gradient-text">VisentaAI</CardTitle>
           <CardDescription className="text-center">
-            Masuk atau daftar untuk melanjutkan
+            {showForgotPassword ? "Reset Password Anda" : "Masuk atau daftar untuk melanjutkan"}
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {showForgotPassword ? (
+            <div className="space-y-4 animate-fade-in">
+              <Button
+                type="button"
+                variant="ghost"
+                className="mb-4"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Kembali
+              </Button>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="nama@email.com"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Kami akan mengirim link reset password ke email Anda
+                  </p>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Mengirim...
+                    </>
+                  ) : (
+                    "Kirim Link Reset"
+                  )}
+                </Button>
+              </form>
+            </div>
+          ) : (
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Masuk</TabsTrigger>
@@ -141,7 +205,16 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Lupa password?
+                    </button>
+                  </div>
                   <Input
                     id="password"
                     type="password"
@@ -291,6 +364,7 @@ const Auth = () => {
               </Button>
             </TabsContent>
           </Tabs>
+          )}
         </CardContent>
       </Card>
     </div>
