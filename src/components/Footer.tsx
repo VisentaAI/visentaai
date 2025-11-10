@@ -1,18 +1,22 @@
 import { Mail, MapPin, Phone, Twitter, Instagram } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
-
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
   const scrollToSection = (id: string) => {
     if (location.pathname !== '/') {
-      navigate('/', { state: { scrollTo: id } });
+      navigate('/', {
+        state: {
+          scrollTo: id
+        }
+      });
     } else {
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+        element.scrollIntoView({
+          behavior: "smooth"
+        });
       }
     }
   };
@@ -59,9 +63,7 @@ const Footer = () => {
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection("demo")} className="text-left text-muted-foreground hover:text-primary transition-colors">
-                  Demo
-                </button>
+                
               </li>
               <li>
                 <button onClick={() => scrollToSection("testimonials")} className="text-left text-muted-foreground hover:text-primary transition-colors">
