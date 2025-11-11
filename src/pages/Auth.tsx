@@ -137,7 +137,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4" style={{ background: 'var(--gradient-hero)' }}>
       <div className="absolute top-4 left-4">
         <Button variant="ghost" onClick={() => navigate("/landing")}>
           <ArrowLeft className="mr-2 h-4 w-4" />

@@ -30,7 +30,7 @@ const Landing = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4" style={{ background: 'var(--gradient-hero)' }}>
       <div className="absolute inset-0 ai-grid opacity-30" />
       
       <Card className="relative glass max-w-2xl w-full p-8 md:p-12 shadow-2xl animate-scale-in">
