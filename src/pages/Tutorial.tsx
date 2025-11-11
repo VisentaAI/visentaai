@@ -169,7 +169,7 @@ const Tutorial = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background" style={{ background: 'var(--gradient-hero)' }}>
       <Navbar />
       
       <section className="pt-32 pb-20 px-4">
