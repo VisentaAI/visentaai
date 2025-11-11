@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { PresenceProvider } from "@/contexts/PresenceContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import Landing from "./pages/Landing";
 import Preview from "./pages/Preview";
 import Index from "./pages/Index";
@@ -36,6 +37,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <NotificationProvider>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/landing" element={<Landing />} />
@@ -57,7 +59,8 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+              </NotificationProvider>
+            </BrowserRouter>
           </TooltipProvider>
         </PresenceProvider>
       </LanguageProvider>
