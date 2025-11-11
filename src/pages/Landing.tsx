@@ -19,6 +19,14 @@ const Landing = () => {
         navigate("/");
       }
     });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   return (
@@ -67,7 +75,7 @@ const Landing = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
             <Button 
-              onClick={() => navigate("/")} 
+              onClick={() => navigate("/auth")} 
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all"
               size="lg"
             >
@@ -76,13 +84,6 @@ const Landing = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
-
-          <button 
-            onClick={() => navigate("/auth")}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
-          >
-            Login / Sign up
-          </button>
         </div>
       </Card>
     </div>
