@@ -7,11 +7,13 @@ import { Bot, Users, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const { t } = useLanguage();
+  const currentLogo = theme === 'dark' ? logoWhite : logo;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -38,7 +40,7 @@ const Landing = () => {
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
             <img 
-              src={logo} 
+              src={currentLogo} 
               alt="VisentaAI Logo" 
               className="relative w-24 h-24 object-contain animate-float" 
             />

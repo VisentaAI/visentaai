@@ -1,11 +1,16 @@
 import { Mail, MapPin, Phone, Twitter, Instagram } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
+
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const currentLogo = theme === 'dark' ? logoWhite : logo;
   const scrollToSection = (id: string) => {
     if (location.pathname !== '/') {
       navigate('/', {
@@ -27,7 +32,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <img src={logo} alt="VisentaAI Logo" className="w-10 h-10 object-contain" />
+              <img src={currentLogo} alt="VisentaAI Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-bold gradient-text">VisentaAI</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">

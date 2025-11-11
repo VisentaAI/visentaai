@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { Badge } from "@/components/ui/badge";
 const Navbar = () => {
@@ -24,6 +25,8 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const { communityUnread, directUnread } = useUnreadCounts();
+  
+  const currentLogo = theme === 'dark' ? logoWhite : logo;
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -59,7 +62,7 @@ const Navbar = () => {
           onClick={handleLogoClick}
           className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
         >
-          <img src={logo} alt="VisentaAI Logo" className="w-10 h-10 object-contain" />
+          <img src={currentLogo} alt="VisentaAI Logo" className="w-10 h-10 object-contain" />
           <span className="text-2xl font-bold gradient-text">VisentaAI</span>
         </button>
 
