@@ -10,7 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Send, ArrowLeft, Plus, Search } from "lucide-react";
+import { Send, ArrowLeft, Plus, Search, Smile, Trash2 } from "lucide-react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { formatDistanceToNow } from "date-fns";
 import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
@@ -66,6 +67,7 @@ export default function DirectMessages() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [showProfileCard, setShowProfileCard] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesChannelRef = useRef<any>(null);
 
@@ -316,6 +318,42 @@ export default function DirectMessages() {
     }
   };
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this conversation? This will delete all messages.");
+    if (!confirmed) return;
+
+    try {
+      // First delete all messages in the conversation
+      await supabase
+        .from("direct_messages")
+        .delete()
+        .eq("conversation_id", conversationId);
+
+      // Then delete the conversation
+      const { error } = await supabase
+        .from("direct_conversations")
+        .delete()
+        .eq("id", conversationId);
+
+      if (error) throw error;
+
+      if (activeConversation === conversationId) {
+        setActiveConversation(null);
+      }
+      
+      toast.success("Conversation deleted");
+      await loadConversations();
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+      toast.error("Failed to delete conversation");
+    }
+  };
+
+  const onEmojiClick = (emojiData: EmojiClickData) => {
+    setNewMessage((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
   const activeConversationData = conversations.find((c) => c.id === activeConversation);
 
   if (loading) {
@@ -393,7 +431,7 @@ export default function DirectMessages() {
         </div>
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 overflow-hidden">
-          <Card className="md:col-span-1 flex flex-col">
+          <Card className="md:col-span-1 flex flex-col border-2 border-primary/20 shadow-lg bg-gradient-to-b from-background to-muted/20">
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-2">
                  {conversations.map((conv) => {
@@ -406,15 +444,16 @@ export default function DirectMessages() {
                    const isOnline = onlineUserIds.has(conv.other_user?.id || "");
                    
                    return (
-                     <button
-                       key={conv.id}
-                       onClick={() => setActiveConversation(conv.id)}
-                       className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                         activeConversation === conv.id
-                           ? "bg-primary text-primary-foreground"
-                           : "hover:bg-muted"
-                       }`}
-                     >
+                      <div className="relative group">
+                        <button
+                          key={conv.id}
+                          onClick={() => setActiveConversation(conv.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
+                            activeConversation === conv.id
+                              ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md"
+                              : "hover:bg-muted hover:shadow-sm"
+                          }`}
+                        >
                        <div className="relative">
                          <Avatar className="h-12 w-12 flex-shrink-0">
                            <AvatarImage src={displayAvatar} />
@@ -436,10 +475,22 @@ export default function DirectMessages() {
                            )}
                          </div>
                          <p className="text-sm text-muted-foreground truncate">{conv.last_message || "No messages yet"}</p>
-                       </div>
-                     </button>
-                   );
-                 })}
+                        </div>
+                        </button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteConversation(conv.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
                 {conversations.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
                     <p>{t("dm.noConversations")}</p>
@@ -449,10 +500,10 @@ export default function DirectMessages() {
             </ScrollArea>
           </Card>
 
-          <Card className="md:col-span-2 flex flex-col">
+          <Card className="md:col-span-2 flex flex-col border-2 border-primary/20 shadow-lg">
             {activeConversation ? (
               <>
-                 <div className="border-b border-border p-4">
+                 <div className="border-b border-border p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
                    <div className="flex items-center gap-3">
                      <button
                        onClick={() => {
@@ -495,44 +546,67 @@ export default function DirectMessages() {
                    </div>
                  </div>
 
-                <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-                  <div className="space-y-4">
-                    {messages.map((message) => {
-                      const isOwn = message.sender_id === currentUserId;
-                      return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-                        >
-                          <div
-                            className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                              isOwn
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-foreground"
-                            }`}
-                          >
-                            <p className="text-sm break-words">{message.content}</p>
-                            <p className="text-xs opacity-70 mt-1">
-                              {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
+                 <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+                   <div className="space-y-4">
+                     {messages.map((message) => {
+                       const isOwn = message.sender_id === currentUserId;
+                       return (
+                         <div
+                           key={message.id}
+                           className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                         >
+                           <div
+                             className={`max-w-[70%] rounded-lg px-4 py-2 shadow-md transition-all hover:shadow-lg ${
+                               isOwn
+                                 ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border border-primary/50"
+                                 : "bg-gradient-to-br from-muted to-muted/50 text-foreground border border-border/50"
+                             }`}
+                           >
+                             <p className="text-sm break-words">{message.content}</p>
+                             <p className="text-xs opacity-70 mt-1">
+                               {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                             </p>
+                           </div>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </ScrollArea>
 
-                <form onSubmit={handleSendMessage} className="border-t border-border p-4 flex gap-2">
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder={t("dm.typePlaceholder")}
-                    disabled={sending}
-                    className="flex-1"
-                  />
-                  <Button type="submit" disabled={sending || !newMessage.trim()}>
-                    <Send className="h-4 w-4" />
-                  </Button>
+                <form onSubmit={handleSendMessage} className="border-t border-border p-4 bg-gradient-to-r from-background via-muted/20 to-background">
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1 relative">
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder={t("dm.typePlaceholder")}
+                        disabled={sending}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      >
+                        <Smile className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <Button 
+                      type="submit" 
+                      disabled={sending || !newMessage.trim()}
+                      className="h-10 px-6"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Send
+                    </Button>
+                  </div>
+                  {showEmojiPicker && (
+                    <div className="absolute bottom-20 right-4 z-50">
+                      <EmojiPicker onEmojiClick={onEmojiClick} />
+                    </div>
+                  )}
                 </form>
               </>
             ) : (

@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users, ArrowLeft, Trash2, PanelRightOpen } from "lucide-react";
+import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash } from "lucide-react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/contexts/PresenceContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -51,6 +52,7 @@ const Community = () => {
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [showProfileCard, setShowProfileCard] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -211,6 +213,29 @@ const Community = () => {
     }
   };
 
+  const handleClearAllMessages = async () => {
+    if (!currentUserId) return;
+    
+    const confirmed = window.confirm(t('community.clearAllConfirm') || "Are you sure you want to clear all messages? This action cannot be undone.");
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from("community_messages")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all
+
+    if (error) {
+      toast.error("Failed to clear messages");
+    } else {
+      toast.success("All messages cleared");
+    }
+  };
+
+  const onEmojiClick = (emojiData: EmojiClickData) => {
+    setNewMessage((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -233,15 +258,26 @@ const Community = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Home
               </Button>
-              <Card className="h-[calc(100vh-16rem)]">
-                <CardHeader className="border-b">
+              <Card className="h-[calc(100vh-16rem)] border-2 border-primary/20 shadow-lg">
+                <CardHeader className="border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl gradient-text">{t('community.title')}</CardTitle>
+                    <CardTitle className="text-2xl gradient-text flex items-center gap-2">
+                      <Users className="h-6 w-6" />
+                      {t('community.title')}
+                    </CardTitle>
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{activeUsers} {t('community.activeUsers')}</span>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
+                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                        <span className="font-medium">{activeUsers} {t('community.activeUsers')}</span>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        size="icon"
+                        onClick={handleClearAllMessages}
+                        className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
                       <SidebarTrigger>
                         <Button variant="outline" size="icon">
                           <PanelRightOpen className="h-4 w-4" />
@@ -310,10 +346,10 @@ const Community = () => {
                           </span>
                           <div className="flex items-start gap-2">
                             <Card
-                              className={`p-3 ${
+                              className={`p-3 shadow-md transition-all hover:shadow-lg ${
                                 isOwn
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-foreground"
+                                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary/50"
+                                  : "bg-gradient-to-br from-muted to-muted/50 text-foreground border-border/50"
                               }`}
                             >
                               <p className="text-sm break-words">{message.content}</p>
@@ -336,17 +372,40 @@ const Community = () => {
                 </div>
               </ScrollArea>
 
-              <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder={t('community.typePlaceholder')}
-                  disabled={sending}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={sending || !newMessage.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
+              <form onSubmit={handleSendMessage} className="p-4 border-t bg-gradient-to-r from-background via-muted/20 to-background">
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1 relative">
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder={t('community.typePlaceholder')}
+                      disabled={sending}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                      <Smile className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    disabled={sending || !newMessage.trim()}
+                    className="h-10 px-6"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Send
+                  </Button>
+                </div>
+                {showEmojiPicker && (
+                  <div className="absolute bottom-20 right-4 z-50">
+                    <EmojiPicker onEmojiClick={onEmojiClick} />
+                  </div>
+                )}
               </form>
             </CardContent>
               </Card>
