@@ -33,6 +33,7 @@ const Community = () => {
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [activeUsers, setActiveUsers] = useState(0);
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -136,19 +137,24 @@ const Community = () => {
   const setupPresence = () => {
     const channel = supabase.channel("online-users");
 
+    const updatePresenceState = () => {
+      const state = channel.presenceState();
+      const userIds = new Set<string>();
+      Object.values(state).forEach((presences: any) => {
+        presences.forEach((presence: any) => {
+          if (presence.user_id) {
+            userIds.add(presence.user_id);
+          }
+        });
+      });
+      setActiveUsers(userIds.size);
+      setOnlineUserIds(userIds);
+    };
+
     channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        setActiveUsers(Object.keys(state).length);
-      })
-      .on("presence", { event: "join" }, () => {
-        const state = channel.presenceState();
-        setActiveUsers(Object.keys(state).length);
-      })
-      .on("presence", { event: "leave" }, () => {
-        const state = channel.presenceState();
-        setActiveUsers(Object.keys(state).length);
-      })
+      .on("presence", { event: "sync" }, updatePresenceState)
+      .on("presence", { event: "join" }, updatePresenceState)
+      .on("presence", { event: "leave" }, updatePresenceState)
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED" && currentUserId) {
           await channel.track({
@@ -251,6 +257,7 @@ const Community = () => {
                          message.profiles?.email?.[0]?.toUpperCase() ||
                          "U")
                       : (isPublic ? (message.profiles?.full_name?.[0]?.toUpperCase() || "A") : "A");
+                    const isOnline = onlineUserIds.has(message.user_id);
                     
                     return (
                       <div
@@ -266,7 +273,7 @@ const Community = () => {
                                     navigate(`/messages?user=${message.user_id}`);
                                   }
                                 }}
-                                className={`flex-shrink-0 ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
+                                className={`flex-shrink-0 relative ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
                                 disabled={isOwn}
                               >
                                 <Avatar className="h-10 w-10">
@@ -275,6 +282,12 @@ const Community = () => {
                                     {avatarFallback}
                                   </AvatarFallback>
                                 </Avatar>
+                                <span 
+                                  className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
+                                    isOnline ? 'bg-green-500' : 'bg-muted'
+                                  }`}
+                                  aria-label={isOnline ? 'Online' : 'Offline'}
+                                />
                               </button>
                             </TooltipTrigger>
                             <TooltipContent>
