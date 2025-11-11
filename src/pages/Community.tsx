@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Send, Users, ArrowLeft, Trash2, PanelRightOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePresence } from "@/contexts/PresenceContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -38,13 +39,12 @@ interface OnlineUser {
 const Community = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { onlineUserIds, activeUsers } = usePresence();
   const [messages, setMessages] = useState<CommunityMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [activeUsers, setActiveUsers] = useState(0);
-  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -58,10 +58,8 @@ const Community = () => {
   }, []);
 
   useEffect(() => {
-    if (currentUserId) {
-      setupPresence();
-    }
-  }, [currentUserId]);
+    loadOnlineUsers();
+  }, [onlineUserIds]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -146,57 +144,23 @@ const Community = () => {
     };
   };
 
-  const setupPresence = () => {
-    const channel = supabase.channel("online-users");
+  const loadOnlineUsers = async () => {
+    if (onlineUserIds.size === 0) {
+      setOnlineUsers([]);
+      return;
+    }
 
-    const updatePresenceState = async () => {
-      const state = channel.presenceState();
-      const userIds = new Set<string>();
-      Object.values(state).forEach((presences: any) => {
-        presences.forEach((presence: any) => {
-          if (presence.user_id) {
-            userIds.add(presence.user_id);
-          }
-        });
-      });
-      setActiveUsers(userIds.size);
-      setOnlineUserIds(userIds);
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, email, is_public")
+      .in("id", Array.from(onlineUserIds));
 
-      // Fetch profiles for online users
-      if (userIds.size > 0) {
-        const { data: profilesData } = await supabase
-          .from("profiles")
-          .select("id, full_name, avatar_url, email, is_public")
-          .in("id", Array.from(userIds));
+    const usersWithProfiles: OnlineUser[] = Array.from(onlineUserIds).map(userId => ({
+      user_id: userId,
+      profile: profilesData?.find(p => p.id === userId) || undefined,
+    }));
 
-        const usersWithProfiles: OnlineUser[] = Array.from(userIds).map(userId => ({
-          user_id: userId,
-          profile: profilesData?.find(p => p.id === userId) || undefined,
-        }));
-
-        setOnlineUsers(usersWithProfiles);
-      } else {
-        setOnlineUsers([]);
-      }
-    };
-
-    channel
-      .on("presence", { event: "sync" }, updatePresenceState)
-      .on("presence", { event: "join" }, updatePresenceState)
-      .on("presence", { event: "leave" }, updatePresenceState)
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED" && currentUserId) {
-          await channel.track({
-            user_id: currentUserId,
-            online_at: new Date().toISOString(),
-          });
-        }
-      });
-
-    return () => {
-      channel.untrack();
-      supabase.removeChannel(channel);
-    };
+    setOnlineUsers(usersWithProfiles);
   };
 
   const scrollToBottom = () => {

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePresence } from "@/contexts/PresenceContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -22,6 +23,7 @@ interface Conversation {
     full_name: string | null;
     avatar_url: string | null;
     email: string | null;
+    is_public: boolean | null;
   };
   last_message?: string;
   unread_count?: number;
@@ -41,12 +43,14 @@ interface User {
   full_name: string | null;
   avatar_url: string | null;
   email: string | null;
+  is_public: boolean | null;
 }
 
 export default function DirectMessages() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
+  const { onlineUserIds } = usePresence();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -128,7 +132,7 @@ export default function DirectMessages() {
           
           const { data: profile } = await supabase
             .from("profiles")
-            .select("id, full_name, avatar_url, email")
+            .select("id, full_name, avatar_url, email, is_public")
             .eq("id", otherUserId)
             .single();
 
@@ -275,7 +279,7 @@ export default function DirectMessages() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email")
+        .select("id, full_name, avatar_url, email, is_public")
         .neq("id", currentUserId)
         .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
         .limit(10);
@@ -352,26 +356,29 @@ export default function DirectMessages() {
                 </div>
                 <ScrollArea className="h-64">
                   <div className="space-y-2">
-                    {users.map((user) => (
-                      <button
-                        key={user.id}
-                        onClick={() => startConversation(user.id)}
-                        className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                      >
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar_url || ""} />
-                          <AvatarFallback>
-                            {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 text-left">
-                          <p className="font-medium text-foreground">
-                            {user.full_name || user.email || "Anonymous"}
-                          </p>
-                          {user.full_name && <p className="text-sm text-muted-foreground">{user.email}</p>}
-                        </div>
-                      </button>
-                    ))}
+                     {users.map((user) => {
+                       const isPublic = user.is_public ?? true;
+                       const displayName = isPublic ? (user.full_name || user.email || "Anonymous") : "Anonymous";
+                       const displayAvatar = isPublic ? (user.avatar_url || "") : "";
+                       const avatarFallback = isPublic ? (user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "A") : "A";
+                       
+                       return (
+                         <button
+                           key={user.id}
+                           onClick={() => startConversation(user.id)}
+                           className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                         >
+                           <Avatar className="h-10 w-10">
+                             <AvatarImage src={displayAvatar} />
+                             <AvatarFallback>{avatarFallback}</AvatarFallback>
+                           </Avatar>
+                           <div className="flex-1 text-left">
+                             <p className="font-medium text-foreground">{displayName}</p>
+                             {isPublic && user.full_name && <p className="text-sm text-muted-foreground">{user.email}</p>}
+                           </div>
+                         </button>
+                       );
+                     })}
                   </div>
                 </ScrollArea>
               </div>
@@ -383,39 +390,50 @@ export default function DirectMessages() {
           <Card className="md:col-span-1 flex flex-col">
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-2">
-                {conversations.map((conv) => (
-                  <button
-                    key={conv.id}
-                    onClick={() => setActiveConversation(conv.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                      activeConversation === conv.id
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-muted"
-                    }`}
-                  >
-                    <Avatar className="h-12 w-12 flex-shrink-0">
-                      <AvatarImage src={conv.other_user?.avatar_url || ""} />
-                      <AvatarFallback>
-                        {conv.other_user?.full_name?.[0]?.toUpperCase() ||
-                          conv.other_user?.email?.[0]?.toUpperCase() ||
-                          "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-medium truncate">
-                          {conv.other_user?.full_name || conv.other_user?.email || "Anonymous"}
-                        </p>
-                        {conv.unread_count! > 0 && (
-                          <span className="bg-destructive text-destructive-foreground text-xs rounded-full px-2 py-0.5">
-                            {conv.unread_count}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate">{conv.last_message || "No messages yet"}</p>
-                    </div>
-                  </button>
-                ))}
+                 {conversations.map((conv) => {
+                   const isPublic = conv.other_user?.is_public ?? true;
+                   const displayName = isPublic ? (conv.other_user?.full_name || conv.other_user?.email || "Anonymous") : "Anonymous";
+                   const displayAvatar = isPublic ? (conv.other_user?.avatar_url || "") : "";
+                   const avatarFallback = isPublic 
+                     ? (conv.other_user?.full_name?.[0]?.toUpperCase() || conv.other_user?.email?.[0]?.toUpperCase() || "U")
+                     : "A";
+                   const isOnline = onlineUserIds.has(conv.other_user?.id || "");
+                   
+                   return (
+                     <button
+                       key={conv.id}
+                       onClick={() => setActiveConversation(conv.id)}
+                       className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                         activeConversation === conv.id
+                           ? "bg-primary text-primary-foreground"
+                           : "hover:bg-muted"
+                       }`}
+                     >
+                       <div className="relative">
+                         <Avatar className="h-12 w-12 flex-shrink-0">
+                           <AvatarImage src={displayAvatar} />
+                           <AvatarFallback>{avatarFallback}</AvatarFallback>
+                         </Avatar>
+                         <span 
+                           className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
+                             isOnline ? 'bg-green-500' : 'bg-muted'
+                           }`}
+                         />
+                       </div>
+                       <div className="flex-1 text-left min-w-0">
+                         <div className="flex items-center justify-between mb-1">
+                           <p className="font-medium truncate">{displayName}</p>
+                           {conv.unread_count! > 0 && (
+                             <span className="bg-destructive text-destructive-foreground text-xs rounded-full px-2 py-0.5">
+                               {conv.unread_count}
+                             </span>
+                           )}
+                         </div>
+                         <p className="text-sm text-muted-foreground truncate">{conv.last_message || "No messages yet"}</p>
+                       </div>
+                     </button>
+                   );
+                 })}
                 {conversations.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
                     <p>{t("dm.noConversations")}</p>
@@ -428,25 +446,40 @@ export default function DirectMessages() {
           <Card className="md:col-span-2 flex flex-col">
             {activeConversation ? (
               <>
-                <div className="border-b border-border p-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={activeConversationData?.other_user?.avatar_url || ""} />
-                      <AvatarFallback>
-                        {activeConversationData?.other_user?.full_name?.[0]?.toUpperCase() ||
-                          activeConversationData?.other_user?.email?.[0]?.toUpperCase() ||
-                          "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {activeConversationData?.other_user?.full_name ||
-                          activeConversationData?.other_user?.email ||
-                          "Anonymous"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                 <div className="border-b border-border p-4">
+                   <div className="flex items-center gap-3">
+                     <div className="relative">
+                       <Avatar className="h-10 w-10">
+                         <AvatarImage src={
+                           (activeConversationData?.other_user?.is_public ?? true)
+                             ? (activeConversationData?.other_user?.avatar_url || "")
+                             : ""
+                         } />
+                         <AvatarFallback>
+                           {(activeConversationData?.other_user?.is_public ?? true)
+                             ? (activeConversationData?.other_user?.full_name?.[0]?.toUpperCase() ||
+                                activeConversationData?.other_user?.email?.[0]?.toUpperCase() ||
+                                "U")
+                             : "A"}
+                         </AvatarFallback>
+                       </Avatar>
+                       <span 
+                         className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
+                           onlineUserIds.has(activeConversationData?.other_user?.id || "") ? 'bg-green-500' : 'bg-muted'
+                         }`}
+                       />
+                     </div>
+                     <div>
+                       <p className="font-medium text-foreground">
+                         {(activeConversationData?.other_user?.is_public ?? true)
+                           ? (activeConversationData?.other_user?.full_name ||
+                              activeConversationData?.other_user?.email ||
+                              "Anonymous")
+                           : "Anonymous"}
+                       </p>
+                     </div>
+                   </div>
+                 </div>
 
                 <ScrollArea className="flex-1 p-4" ref={scrollRef}>
                   <div className="space-y-4">

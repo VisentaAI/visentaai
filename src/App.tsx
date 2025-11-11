@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { PresenceProvider } from "@/contexts/PresenceContext";
 import Landing from "./pages/Landing";
 import Preview from "./pages/Preview";
 import Index from "./pages/Index";
@@ -30,10 +31,11 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+        <PresenceProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/landing" element={<Landing />} />
@@ -56,7 +58,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-        </TooltipProvider>
+          </TooltipProvider>
+        </PresenceProvider>
       </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>
