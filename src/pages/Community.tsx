@@ -13,6 +13,7 @@ import { usePresence } from "@/contexts/PresenceContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ProfileCard } from "@/components/ProfileCard";
+import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 
 interface CommunityMessage {
   id: string;
@@ -41,6 +42,7 @@ const Community = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { onlineUserIds, activeUsers } = usePresence();
+  const { markCommunityAsRead } = useUnreadCounts();
   const [messages, setMessages] = useState<CommunityMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,7 @@ const Community = () => {
       await checkAuth();
       loadMessages();
       setupRealtimeSubscription();
+      markCommunityAsRead();
     };
     init();
   }, []);

@@ -24,6 +24,7 @@ interface UserProfile {
   email: string | null;
   bio: string | null;
   is_public: boolean;
+  email_visible: boolean;
 }
 
 export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
@@ -42,7 +43,7 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email, bio, is_public")
+        .select("id, full_name, avatar_url, email, bio, is_public, email_visible")
         .eq("id", userId)
         .single();
 
@@ -77,9 +78,10 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
   }
 
   const isPublic = profile.is_public ?? true;
+  const emailVisible = profile.email_visible ?? true;
   const displayName = isPublic ? (profile.full_name || "Anonymous") : "Anonymous";
   const displayAvatar = isPublic ? profile.avatar_url : null;
-  const displayEmail = isPublic ? profile.email : null;
+  const displayEmail = isPublic && emailVisible ? profile.email : null;
   const displayBio = isPublic ? profile.bio : null;
   const avatarFallback = isPublic 
     ? (profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || "U")

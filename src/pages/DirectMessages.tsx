@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Send, ArrowLeft, Plus, Search } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ProfileCard } from "@/components/ProfileCard";
+import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 
 interface Conversation {
   id: string;
@@ -52,6 +53,7 @@ export default function DirectMessages() {
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   const { onlineUserIds } = usePresence();
+  const { markDirectAsRead } = useUnreadCounts();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -96,6 +98,7 @@ export default function DirectMessages() {
       loadMessages();
       setupMessagesSubscription();
       markMessagesAsRead();
+      markDirectAsRead(activeConversation);
     }
     return () => {
       if (messagesChannelRef.current) {

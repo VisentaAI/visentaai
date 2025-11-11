@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
+import { useUnreadCounts } from "@/hooks/useUnreadCounts";
+import { Badge } from "@/components/ui/badge";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,6 +23,7 @@ const Navbar = () => {
   const isHomePage = location.pathname === "/";
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const { communityUnread, directUnread } = useUnreadCounts();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -101,12 +104,28 @@ const Navbar = () => {
             <User className="h-5 w-5" />
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={() => navigate("/community")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/community")} className="relative">
             <Users className="h-5 w-5" />
+            {communityUnread > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+              >
+                {communityUnread > 9 ? "9+" : communityUnread}
+              </Badge>
+            )}
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="relative">
             <MessageSquare className="h-5 w-5" />
+            {directUnread > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+              >
+                {directUnread > 9 ? "9+" : directUnread}
+              </Badge>
+            )}
           </Button>
 
           <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
@@ -152,14 +171,30 @@ const Navbar = () => {
               Profile
             </Button>
 
-            <Button onClick={() => { navigate("/community"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+            <Button onClick={() => { navigate("/community"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full relative">
               <Users className="h-4 w-4 mr-2" />
               Community
+              {communityUnread > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                >
+                  {communityUnread > 9 ? "9+" : communityUnread}
+                </Badge>
+              )}
             </Button>
 
-            <Button onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+            <Button onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full relative">
               <MessageSquare className="h-4 w-4 mr-2" />
               Messages
+              {directUnread > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                >
+                  {directUnread > 9 ? "9+" : directUnread}
+                </Badge>
+              )}
             </Button>
 
             <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">
