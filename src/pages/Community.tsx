@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users } from "lucide-react";
+import { Send, Users, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CommunityMessage {
@@ -186,6 +186,14 @@ const Community = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-24">
         <div className="max-w-4xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            className="mb-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Button>
           <Card className="h-[calc(100vh-16rem)]">
             <CardHeader className="border-b">
               <div className="flex items-center justify-between">

@@ -16,7 +16,7 @@ const Landing = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        navigate("/");
       }
     });
   }, [navigate]);
@@ -67,7 +67,7 @@ const Landing = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
             <Button 
-              onClick={() => navigate("/auth")} 
+              onClick={() => navigate("/")} 
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all"
               size="lg"
             >
@@ -78,10 +78,10 @@ const Landing = () => {
           </div>
 
           <button 
-            onClick={() => navigate("/preview")}
+            onClick={() => navigate("/auth")}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
           >
-            Preview without login
+            Login / Sign up
           </button>
         </div>
       </Card>

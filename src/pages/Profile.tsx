@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -91,6 +93,14 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-24">
         <div className="max-w-2xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            className="mb-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Button>
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-2xl gradient-text">My Profile</CardTitle>
