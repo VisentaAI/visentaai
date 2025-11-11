@@ -233,6 +233,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_public: boolean
           language: string | null
           notification_enabled: boolean | null
           theme: string | null
@@ -245,6 +246,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          is_public?: boolean
           language?: string | null
           notification_enabled?: boolean | null
           theme?: string | null
@@ -257,6 +259,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_public?: boolean
           language?: string | null
           notification_enabled?: boolean | null
           theme?: string | null

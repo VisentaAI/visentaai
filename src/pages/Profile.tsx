@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Upload } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -19,6 +20,7 @@ const Profile = () => {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
 
   useEffect(() => {
     checkAuthAndLoadProfile();
@@ -60,6 +62,7 @@ const Profile = () => {
       setDisplayName(data.full_name || "");
       setBio(data.bio || "");
       setAvatarUrl(data.avatar_url || "");
+      setIsPublic(data.is_public ?? true);
     }
     setLoading(false);
   };
@@ -113,6 +116,7 @@ const Profile = () => {
       .update({
         full_name: displayName,
         bio: bio,
+        is_public: isPublic,
       })
       .eq("id", user.id);
 
@@ -199,6 +203,24 @@ const Profile = () => {
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Tell us about yourself"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="visibility">Profile Visibility</Label>
+                      <p className="text-sm text-muted-foreground">
+                        {isPublic 
+                          ? "Your name and photo are visible to everyone" 
+                          : "You appear as Anonymous to others"}
+                      </p>
+                    </div>
+                    <Switch
+                      id="visibility"
+                      checked={isPublic}
+                      onCheckedChange={setIsPublic}
+                    />
+                  </div>
                 </div>
 
                 <Button 

@@ -19,6 +19,7 @@ interface CommunityMessage {
     full_name: string | null;
     avatar_url: string | null;
     email: string | null;
+    is_public: boolean | null;
   };
 }
 
@@ -71,7 +72,7 @@ const Community = () => {
     const userIds = [...new Set(messagesData?.map(m => m.user_id) || [])];
     const { data: profilesData, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, email")
+      .select("id, full_name, avatar_url, email, is_public")
       .in("id", userIds);
 
     if (profilesError) {
@@ -101,7 +102,7 @@ const Community = () => {
         async (payload) => {
           const { data: profileData } = await supabase
             .from("profiles")
-            .select("full_name, avatar_url, email")
+            .select("full_name, avatar_url, email, is_public")
             .eq("id", payload.new.user_id)
             .single();
 
@@ -239,6 +240,17 @@ const Community = () => {
                 <div className="space-y-4">
                   {messages.map((message) => {
                     const isOwn = message.user_id === currentUserId;
+                    const isPublic = message.profiles?.is_public ?? false;
+                    const displayName = isOwn 
+                      ? t('community.you')
+                      : (isPublic ? (message.profiles?.full_name || "Anonymous") : "Anonymous");
+                    const displayAvatar = isOwn || isPublic ? message.profiles?.avatar_url || "" : "";
+                    const avatarFallback = isOwn 
+                      ? (message.profiles?.full_name?.[0]?.toUpperCase() ||
+                         message.profiles?.email?.[0]?.toUpperCase() ||
+                         "U")
+                      : (isPublic ? (message.profiles?.full_name?.[0]?.toUpperCase() || "A") : "A");
+                    
                     return (
                       <div
                         key={message.id}
@@ -254,21 +266,15 @@ const Community = () => {
                           disabled={isOwn}
                         >
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={isOwn ? message.profiles?.avatar_url || "" : ""} />
+                            <AvatarImage src={displayAvatar} />
                             <AvatarFallback>
-                              {isOwn 
-                                ? (message.profiles?.full_name?.[0]?.toUpperCase() ||
-                                   message.profiles?.email?.[0]?.toUpperCase() ||
-                                   "U")
-                                : "A"}
+                              {avatarFallback}
                             </AvatarFallback>
                           </Avatar>
                         </button>
                         <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
                           <span className="text-xs font-medium mb-1 text-foreground">
-                            {isOwn
-                              ? t('community.you')
-                              : "Anonymous"}
+                            {displayName}
                           </span>
                           <div className="flex items-start gap-2">
                             <Card
