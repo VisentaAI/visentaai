@@ -22,7 +22,7 @@ const Footer = () => {
       }
     }
   };
-  return <footer className="bg-gradient-to-b from-background to-muted border-t border-border">
+  return <footer className="bg-background border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-4">
