@@ -10,11 +10,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Send, ArrowLeft, Plus, Search, Smile, Trash2 } from "lucide-react";
+import { Send, ArrowLeft, Plus, Search as SearchIcon, Smile, Trash2 } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { formatDistanceToNow } from "date-fns";
 import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { MessageReactions } from "@/components/MessageReactions";
 
 interface Conversation {
   id: string;
@@ -68,8 +70,15 @@ export default function DirectMessages() {
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [showProfileCard, setShowProfileCard] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userDisplayName, setUserDisplayName] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesChannelRef = useRef<any>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { typingUsers, setTyping } = useTypingIndicator(
+    activeConversation ? `dm-typing-${activeConversation}` : 'dm-typing-none',
+    currentUserId
+  );
 
   useEffect(() => {
     checkAuth();
@@ -122,6 +131,15 @@ export default function DirectMessages() {
       return;
     }
     setCurrentUserId(session.user.id);
+    
+    // Load user profile for display name
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', session.user.id)
+      .single();
+    
+    setUserDisplayName(profile?.full_name || profile?.email || 'You');
   };
 
   const loadConversations = async () => {
@@ -354,6 +372,22 @@ export default function DirectMessages() {
     setShowEmojiPicker(false);
   };
 
+  const handleTyping = () => {
+    setTyping(true, userDisplayName);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      setTyping(false, userDisplayName);
+    }, 3000);
+  };
+
+  const filteredMessages = messages.filter((msg) =>
+    msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const activeConversationData = conversations.find((c) => c.id === activeConversation);
 
   if (loading) {
@@ -387,7 +421,7 @@ export default function DirectMessages() {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder={t("dm.searchUsers")}
                     value={searchUsers}
@@ -542,18 +576,29 @@ export default function DirectMessages() {
                               "Anonymous")
                            : "Anonymous"}
                        </p>
-                     </div>
-                   </div>
-                 </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="relative">
+                          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search messages..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                  <ScrollArea className="flex-1 p-4" ref={scrollRef}>
                    <div className="space-y-4">
-                     {messages.map((message) => {
+                     {filteredMessages.map((message) => {
                        const isOwn = message.sender_id === currentUserId;
                        return (
                          <div
                            key={message.id}
-                           className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                           className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}
                          >
                            <div
                              className={`max-w-[70%] rounded-lg px-4 py-2 shadow-md transition-all hover:shadow-lg ${
@@ -567,18 +612,32 @@ export default function DirectMessages() {
                                {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                              </p>
                            </div>
+                           <MessageReactions 
+                             messageId={message.id} 
+                             currentUserId={currentUserId} 
+                             type="direct"
+                           />
                          </div>
                        );
                      })}
                    </div>
                  </ScrollArea>
 
+                 {typingUsers.length > 0 && (
+                   <div className="px-4 py-2 text-sm text-muted-foreground italic border-t">
+                     {typingUsers.map(u => u.displayName).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                   </div>
+                 )}
+
                 <form onSubmit={handleSendMessage} className="border-t border-border p-4 bg-gradient-to-r from-background via-muted/20 to-background">
                   <div className="flex gap-2 items-end">
                     <div className="flex-1 relative">
                       <Input
                         value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
+                        onChange={(e) => {
+                          setNewMessage(e.target.value);
+                          handleTyping();
+                        }}
                         placeholder={t("dm.typePlaceholder")}
                         disabled={sending}
                         className="pr-10"

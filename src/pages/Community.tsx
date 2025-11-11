@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash } from "lucide-react";
+import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash, Search } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/contexts/PresenceContext";
@@ -15,6 +15,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { MessageReactions } from "@/components/MessageReactions";
 
 interface CommunityMessage {
   id: string;
@@ -53,7 +55,11 @@ const Community = () => {
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [showProfileCard, setShowProfileCard] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userDisplayName, setUserDisplayName] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { typingUsers, setTyping } = useTypingIndicator('community-typing', currentUserId);
 
   useEffect(() => {
     const init = async () => {
@@ -73,6 +79,15 @@ const Community = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       setCurrentUserId(session.user.id);
+      
+      // Load user profile for display name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', session.user.id)
+        .single();
+      
+      setUserDisplayName(profile?.full_name || profile?.email || 'You');
     }
   };
 
@@ -236,6 +251,22 @@ const Community = () => {
     setShowEmojiPicker(false);
   };
 
+  const handleTyping = () => {
+    setTyping(true, userDisplayName);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      setTyping(false, userDisplayName);
+    }, 3000);
+  };
+
+  const filteredMessages = messages.filter((msg) =>
+    msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -270,6 +301,15 @@ const Community = () => {
                         <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                         <span className="font-medium">{activeUsers} {t('community.activeUsers')}</span>
                       </div>
+                      <div className="relative flex-1 max-w-xs">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search messages..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 h-9"
+                        />
+                      </div>
                       <Button 
                         variant="outline" 
                         size="icon"
@@ -289,7 +329,7 @@ const Community = () => {
             <CardContent className="p-0 flex flex-col h-[calc(100%-5rem)]">
               <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-4">
-                  {messages.map((message) => {
+                  {filteredMessages.map((message) => {
                     const isOwn = message.user_id === currentUserId;
                     const isPublic = message.profiles?.is_public ?? true;
                     const displayName = isOwn 
@@ -365,19 +405,33 @@ const Community = () => {
                               </Button>
                             )}
                           </div>
+                          <MessageReactions 
+                            messageId={message.id} 
+                            currentUserId={currentUserId} 
+                            type="community"
+                          />
                         </div>
                       </div>
                     );
                   })}
-                </div>
+                 </div>
               </ScrollArea>
+
+              {typingUsers.length > 0 && (
+                <div className="px-4 py-2 text-sm text-muted-foreground italic">
+                  {typingUsers.map(u => u.displayName).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                </div>
+              )}
 
               <form onSubmit={handleSendMessage} className="p-4 border-t bg-gradient-to-r from-background via-muted/20 to-background">
                 <div className="flex gap-2 items-end">
                   <div className="flex-1 relative">
                     <Input
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={(e) => {
+                        setNewMessage(e.target.value);
+                        handleTyping();
+                      }}
                       placeholder={t('community.typePlaceholder')}
                       disabled={sending}
                       className="pr-10"
