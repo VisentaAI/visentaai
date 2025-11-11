@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash, Search } from "lucide-react";
+import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash, Search, Pencil, X, Check } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/contexts/PresenceContext";
@@ -17,12 +17,14 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { MessageReactions } from "@/components/MessageReactions";
+import { z } from "zod";
 
 interface CommunityMessage {
   id: string;
   user_id: string;
   content: string;
   created_at: string;
+  updated_at?: string;
   profiles?: {
     full_name: string | null;
     avatar_url: string | null;
@@ -30,6 +32,13 @@ interface CommunityMessage {
     is_public: boolean | null;
   };
 }
+
+const messageSchema = z.object({
+  content: z.string()
+    .trim()
+    .min(1, { message: "Message cannot be empty" })
+    .max(2000, { message: "Message must be less than 2000 characters" })
+});
 
 interface OnlineUser {
   user_id: string;
@@ -57,6 +66,8 @@ const Community = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userDisplayName, setUserDisplayName] = useState("");
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { typingUsers, setTyping } = useTypingIndicator('community-typing', currentUserId);
@@ -203,21 +214,32 @@ const Community = () => {
     e.preventDefault();
     if (!newMessage.trim() || !currentUserId) return;
 
+    // Validate message
+    const validation = messageSchema.safeParse({ content: newMessage.trim() });
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
     setSending(true);
     const { error } = await supabase.from("community_messages").insert({
       user_id: currentUserId,
-      content: newMessage.trim(),
+      content: validation.data.content,
     });
 
     if (error) {
       toast.error("Failed to send message");
     } else {
       setNewMessage("");
+      setTyping(false, userDisplayName);
     }
     setSending(false);
   };
 
   const handleDeleteMessage = async (messageId: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this message?");
+    if (!confirmed) return;
+
     const { error } = await supabase
       .from("community_messages")
       .delete()
@@ -243,6 +265,45 @@ const Community = () => {
       toast.error("Failed to clear messages");
     } else {
       toast.success("All messages cleared");
+    }
+  };
+
+  const startEditing = (messageId: string, content: string) => {
+    setEditingMessageId(messageId);
+    setEditingContent(content);
+  };
+
+  const cancelEditing = () => {
+    setEditingMessageId(null);
+    setEditingContent("");
+  };
+
+  const handleEditMessage = async (messageId: string) => {
+    if (!editingContent.trim()) {
+      toast.error("Message cannot be empty");
+      return;
+    }
+
+    // Validate message
+    const validation = messageSchema.safeParse({ content: editingContent.trim() });
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
+    const { error } = await supabase
+      .from("community_messages")
+      .update({ 
+        content: validation.data.content,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", messageId);
+
+    if (error) {
+      toast.error("Failed to update message");
+    } else {
+      toast.success("Message updated");
+      cancelEditing();
     }
   };
 
@@ -384,32 +445,82 @@ const Community = () => {
                           <span className="text-xs font-medium mb-1 text-foreground">
                             {displayName}
                           </span>
-                          <div className="flex items-start gap-2">
-                            <Card
-                              className={`p-3 shadow-md transition-all hover:shadow-lg ${
-                                isOwn
-                                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary/50"
-                                  : "bg-gradient-to-br from-muted to-muted/50 text-foreground border-border/50"
-                              }`}
-                            >
-                              <p className="text-sm break-words">{message.content}</p>
-                            </Card>
-                            {isOwn && (
+                          {editingMessageId === message.id ? (
+                            <div className="flex items-center gap-2 w-full">
+                              <Input
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                className="flex-1"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleEditMessage(message.id);
+                                  } else if (e.key === 'Escape') {
+                                    cancelEditing();
+                                  }
+                                }}
+                              />
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => handleDeleteMessage(message.id)}
+                                className="h-8 w-8 hover:bg-green-500/10 hover:text-green-500"
+                                onClick={() => handleEditMessage(message.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Check className="h-4 w-4" />
                               </Button>
-                            )}
-                          </div>
-                          <MessageReactions 
-                            messageId={message.id} 
-                            currentUserId={currentUserId} 
-                            type="community"
-                          />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={cancelEditing}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex items-start gap-2">
+                                <Card
+                                  className={`p-3 shadow-md transition-all hover:shadow-lg ${
+                                    isOwn
+                                      ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-primary/50"
+                                      : "bg-gradient-to-br from-muted to-muted/50 text-foreground border-border/50"
+                                  }`}
+                                >
+                                  <p className="text-sm break-words">{message.content}</p>
+                                  {message.updated_at && message.updated_at !== message.created_at && (
+                                    <p className="text-xs opacity-60 mt-1 italic">edited</p>
+                                  )}
+                                </Card>
+                                {isOwn && (
+                                  <div className="flex flex-col gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 hover:bg-primary/10"
+                                      onClick={() => startEditing(message.id, message.content)}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                                      onClick={() => handleDeleteMessage(message.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                              <MessageReactions 
+                                messageId={message.id} 
+                                currentUserId={currentUserId} 
+                                type="community"
+                              />
+                            </>
+                          )}
                         </div>
                       </div>
                     );
