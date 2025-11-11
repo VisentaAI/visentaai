@@ -34,11 +34,19 @@ const Community = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    checkAuth();
-    loadMessages();
-    setupRealtimeSubscription();
-    setupPresence();
+    const init = async () => {
+      await checkAuth();
+      loadMessages();
+      setupRealtimeSubscription();
+    };
+    init();
   }, []);
+
+  useEffect(() => {
+    if (currentUserId) {
+      setupPresence();
+    }
+  }, [currentUserId]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -246,11 +254,13 @@ const Community = () => {
                           disabled={isOwn}
                         >
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={message.profiles?.avatar_url || ""} />
+                            <AvatarImage src={isOwn ? message.profiles?.avatar_url || "" : ""} />
                             <AvatarFallback>
-                              {message.profiles?.full_name?.[0]?.toUpperCase() ||
-                                message.profiles?.email?.[0]?.toUpperCase() ||
-                                "U"}
+                              {isOwn 
+                                ? (message.profiles?.full_name?.[0]?.toUpperCase() ||
+                                   message.profiles?.email?.[0]?.toUpperCase() ||
+                                   "U")
+                                : "A"}
                             </AvatarFallback>
                           </Avatar>
                         </button>
@@ -258,7 +268,7 @@ const Community = () => {
                           <span className="text-xs font-medium mb-1 text-foreground">
                             {isOwn
                               ? t('community.you')
-                              : message.profiles?.full_name || message.profiles?.email || "Anonymous"}
+                              : "Anonymous"}
                           </span>
                           <div className="flex items-start gap-2">
                             <Card
