@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Upload } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Profile = () => {
@@ -15,8 +15,10 @@ const Profile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     checkAuthAndLoadProfile();
@@ -57,8 +59,49 @@ const Profile = () => {
     if (data) {
       setDisplayName(data.full_name || "");
       setBio(data.bio || "");
+      setAvatarUrl(data.avatar_url || "");
     }
     setLoading(false);
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !event.target.files || event.target.files.length === 0) {
+      return;
+    }
+
+    const file = event.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${user.id}/${Math.random()}.${fileExt}`;
+
+    setUploading(true);
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      toast.error("Failed to upload avatar");
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', user.id);
+
+    if (updateError) {
+      toast.error("Failed to update profile with avatar");
+    } else {
+      setAvatarUrl(publicUrl);
+      toast.success("Avatar uploaded successfully!");
+    }
+
+    setUploading(false);
   };
 
   const handleUpdateProfile = async () => {
@@ -107,12 +150,31 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={user?.user_metadata?.avatar_url || ""} />
-                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                    {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage src={avatarUrl || ""} />
+                    <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                      {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Label htmlFor="avatar-upload" className="absolute bottom-0 right-0 cursor-pointer">
+                    <div className="bg-primary text-primary-foreground rounded-full p-1.5 hover:bg-primary/90 transition-colors">
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
+                    </div>
+                    <Input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarUpload}
+                      disabled={uploading}
+                    />
+                  </Label>
+                </div>
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
                 </div>

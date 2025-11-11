@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users, ArrowLeft } from "lucide-react";
+import { Send, Users, ArrowLeft, Trash2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CommunityMessage {
@@ -105,6 +105,17 @@ const Community = () => {
           setMessages((prev) => [...prev, newMsg]);
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "community_messages",
+        },
+        (payload) => {
+          setMessages((prev) => prev.filter((msg) => msg.id !== payload.old.id));
+        }
+      )
       .subscribe();
 
     return () => {
@@ -174,6 +185,17 @@ const Community = () => {
     setSending(false);
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    const { error } = await supabase
+      .from("community_messages")
+      .delete()
+      .eq("id", messageId);
+
+    if (error) {
+      toast.error("Failed to delete message");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -238,15 +260,27 @@ const Community = () => {
                               ? t('community.you')
                               : message.profiles?.full_name || message.profiles?.email || "Anonymous"}
                           </span>
-                          <Card
-                            className={`p-3 ${
-                              isOwn
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-foreground"
-                            }`}
-                          >
-                            <p className="text-sm break-words">{message.content}</p>
-                          </Card>
+                          <div className="flex items-start gap-2">
+                            <Card
+                              className={`p-3 ${
+                                isOwn
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-foreground"
+                              }`}
+                            >
+                              <p className="text-sm break-words">{message.content}</p>
+                            </Card>
+                            {isOwn && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => handleDeleteMessage(message.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
