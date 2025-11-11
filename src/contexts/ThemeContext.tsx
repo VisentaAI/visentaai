@@ -22,6 +22,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return prefersDark ? 'dark' : 'light';
   });
 
+  const [isAnimating, setIsAnimating] = useState(false);
+
   useEffect(() => {
     localStorage.setItem('theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -44,12 +46,32 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleTheme = () => {
+    setIsAnimating(true);
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
+  const setThemeWithAnimation = (newTheme: Theme) => {
+    if (newTheme !== theme) {
+      setIsAnimating(true);
+      setTheme(newTheme);
+      setTimeout(() => setIsAnimating(false), 600);
+    }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: setThemeWithAnimation }}>
       {children}
+      {isAnimating && (
+        <div 
+          className="fixed inset-0 pointer-events-none z-[9999] theme-flash"
+          style={{
+            background: theme === 'dark' 
+              ? 'radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%)'
+              : 'radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, transparent 70%)',
+          }}
+        />
+      )}
     </ThemeContext.Provider>
   );
 };
