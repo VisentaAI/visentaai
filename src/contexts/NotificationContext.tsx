@@ -32,8 +32,26 @@ export const useNotifications = () => useContext(NotificationContext);
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>("default");
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window) {
+      setNotificationPermission(Notification.permission);
+      
+      if (Notification.permission === "default") {
+        // Request permission after a short delay to avoid immediate permission prompt
+        const timer = setTimeout(() => {
+          Notification.requestPermission().then(permission => {
+            setNotificationPermission(permission);
+          });
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
 
   // Notification sound
   const playNotificationSound = () => {
@@ -52,6 +70,45 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
+  };
+
+  // Show desktop notification
+  const showDesktopNotification = (notification: Notification) => {
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return;
+    }
+
+    const title = notification.type === "community" ? "Community Chat" : "Direct Message";
+    const options = {
+      body: `${notification.senderName}: ${notification.content}`,
+      icon: notification.senderAvatar || "/logo.png",
+      badge: "/logo.png",
+      tag: notification.id,
+      requireInteraction: false,
+      silent: false,
+    };
+
+    const desktopNotif = new Notification(title, options);
+
+    desktopNotif.onclick = () => {
+      window.focus();
+      if (notification.type === "community") {
+        navigate("/community");
+      } else {
+        navigate(`/messages?conversation=${notification.conversationId}`);
+      }
+      desktopNotif.close();
+    };
+
+    // Auto-close after 5 seconds
+    setTimeout(() => {
+      desktopNotif.close();
+    }, 5000);
+  };
+
+  // Check if tab is focused
+  const isTabFocused = () => {
+    return document.hasFocus() && document.visibilityState === "visible";
   };
 
   useEffect(() => {
@@ -100,13 +157,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             timestamp: payload.new.created_at,
           };
 
-          setNotifications((prev) => [...prev, notification]);
-          playNotificationSound();
+          // Show desktop notification if tab is not focused
+          if (!isTabFocused()) {
+            showDesktopNotification(notification);
+          } else {
+            // Show in-app notification if tab is focused
+            setNotifications((prev) => [...prev, notification]);
+            playNotificationSound();
 
-          // Auto dismiss after 5 seconds
-          setTimeout(() => {
-            setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
-          }, 5000);
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+              setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+            }, 5000);
+          }
         }
       )
       .subscribe();
@@ -157,13 +220,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             timestamp: payload.new.created_at,
           };
 
-          setNotifications((prev) => [...prev, notification]);
-          playNotificationSound();
+          // Show desktop notification if tab is not focused
+          if (!isTabFocused()) {
+            showDesktopNotification(notification);
+          } else {
+            // Show in-app notification if tab is focused
+            setNotifications((prev) => [...prev, notification]);
+            playNotificationSound();
 
-          // Auto dismiss after 5 seconds
-          setTimeout(() => {
-            setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
-          }, 5000);
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+              setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+            }, 5000);
+          }
         }
       )
       .subscribe();
