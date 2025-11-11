@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
@@ -93,6 +93,10 @@ const Navbar = () => {
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
+          <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
+            <User className="h-5 w-5" />
+          </Button>
+
           <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
             {t('nav.chat')}
           </Button>
@@ -128,6 +132,10 @@ const Navbar = () => {
               <Button variant="outline" size="sm" onClick={toggleTheme} className="flex-1">
                 {theme === 'dark' ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
                 {theme === 'dark' ? 'Light' : 'Dark'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }} className="flex-1">
+                <User className="h-4 w-4 mr-2" />
+                Profile
               </Button>
             </div>
 
