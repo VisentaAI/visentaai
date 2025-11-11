@@ -63,52 +63,52 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 5%;
+    --background: 0 0% 3%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 8%;
+    --card: 0 0% 6%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 8%;
+    --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
+    --primary: 0 0% 95%;
     --primary-foreground: 0 0% 10%;
 
-    --secondary: 0 0% 20%;
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 0 0% 25%;
+    --accent: 0 0% 20%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 0% 30%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 80%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 85%;
 
     /* VisentaAI Custom Tokens - Dark Mode */
     --primary-glow: 0 0% 85%;
     --secondary-glow: 0 0% 70%;
     
     /* Gradients - Dark Mode */
-    --gradient-primary: linear-gradient(135deg, hsl(0 0% 98%), hsl(0 0% 70%));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 15%));
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 70%));
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 8%));
     --gradient-card: linear-gradient(135deg, hsla(0 0% 98% / 0.05), hsla(0 0% 70% / 0.05));
     
     /* Glassmorphism - Dark Mode */
-    --glass-bg: hsla(0 0% 12% / 0.7);
-    --glass-border: hsla(0 0% 80% / 0.2);
+    --glass-bg: hsla(0 0% 8% / 0.8);
+    --glass-border: hsla(0 0% 85% / 0.15);
     
     /* Shadows - Dark Mode */
-    --shadow-sm: 0 2px 8px hsla(0 0% 0% / 0.3);
-    --shadow-md: 0 4px 16px hsla(0 0% 0% / 0.4);
-    --shadow-lg: 0 8px 32px hsla(0 0% 0% / 0.5);
-    --shadow-glow: 0 0 40px hsla(0 0% 100% / 0.1);
+    --shadow-sm: 0 2px 8px hsla(0 0% 0% / 0.4);
+    --shadow-md: 0 4px 16px hsla(0 0% 0% / 0.5);
+    --shadow-lg: 0 8px 32px hsla(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 40px hsla(0 0% 100% / 0.15);
   }
 }
 
@@ -127,7 +127,7 @@ All colors MUST be HSL.
   }
   
   body.dark {
-    background: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 8%));
+    background: linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 6%));
   }
   
   /* Glassmorphism utility */

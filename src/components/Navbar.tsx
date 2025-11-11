@@ -93,19 +93,16 @@ const Navbar = () => {
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
-            <User className="h-5 w-5" />
-          </Button>
-
-          <Button variant="ghost" size="icon" onClick={() => navigate("/community")}>
-            <Users className="h-5 w-5" />
+          <Button onClick={() => navigate("/dashboard")} variant="outline">
+            <User className="h-5 w-5 mr-2" />
+            Dashboard
           </Button>
 
           <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}>
             <MessageSquare className="h-5 w-5" />
           </Button>
 
-          <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+          <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
             {t('nav.chat')}
           </Button>
         </div>
@@ -141,15 +138,11 @@ const Navbar = () => {
                 {theme === 'dark' ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
                 {theme === 'dark' ? 'Light' : 'Dark'}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }} className="flex-1">
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
             </div>
 
-            <Button onClick={() => { navigate("/community"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
-              <Users className="h-4 w-4 mr-2" />
-              Community
+            <Button onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+              <User className="h-4 w-4 mr-2" />
+              Dashboard
             </Button>
 
             <Button onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
@@ -157,7 +150,7 @@ const Navbar = () => {
               Messages
             </Button>
 
-            <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 w-full">
+            <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">
               {t('nav.chat')}
             </Button>
           </div>

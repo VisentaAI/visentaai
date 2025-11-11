@@ -5,7 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import Landing from "./pages/Landing";
+import Preview from "./pages/Preview";
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Blog from "./pages/Blog";
 import Dokumentasi from "./pages/Dokumentasi";
@@ -34,6 +37,9 @@ const App = () => (
           <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/preview" element={<Preview />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/dokumentasi" element={<Dokumentasi />} />
           <Route path="/tutorial" element={<Tutorial />} />

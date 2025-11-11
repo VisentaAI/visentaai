@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -8,14 +6,7 @@ import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import Tutorial from "@/components/Tutorial";
 
-const Index = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Redirect to landing page for first-time visitors
-    navigate("/landing");
-  }, [navigate]);
-
+const Preview = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -29,4 +20,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Preview;
