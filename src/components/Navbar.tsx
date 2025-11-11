@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import usFlag from "@/assets/flags/us.png";
+import idFlag from "@/assets/flags/id.png";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -80,10 +82,12 @@ const Navbar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setLanguage('en')}>
+              <DropdownMenuItem onClick={() => setLanguage('en')} className="gap-2">
+                <img src={usFlag} alt="English" className="h-5 w-5 rounded" />
                 English
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLanguage('id')}>
+              <DropdownMenuItem onClick={() => setLanguage('id')} className="gap-2">
+                <img src={idFlag} alt="Bahasa Indonesia" className="h-5 w-5 rounded" />
                 Bahasa Indonesia
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -134,7 +138,7 @@ const Navbar = () => {
             
             <div className="flex space-x-2">
               <Button variant="outline" size="sm" onClick={() => setLanguage(language === 'en' ? 'id' : 'en')} className="flex-1">
-                <Languages className="h-4 w-4 mr-2" />
+                <img src={language === 'en' ? usFlag : idFlag} alt={language === 'en' ? 'English' : 'Bahasa Indonesia'} className="h-4 w-4 mr-2 rounded" />
                 {language === 'en' ? 'EN' : 'ID'}
               </Button>
               <Button variant="outline" size="sm" onClick={toggleTheme} className="flex-1">

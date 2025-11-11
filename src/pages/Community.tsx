@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Send, Users, ArrowLeft, Trash2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CommunityMessage {
   id: string;
@@ -240,7 +241,7 @@ const Community = () => {
                 <div className="space-y-4">
                   {messages.map((message) => {
                     const isOwn = message.user_id === currentUserId;
-                    const isPublic = message.profiles?.is_public ?? false;
+                    const isPublic = message.profiles?.is_public ?? true;
                     const displayName = isOwn 
                       ? t('community.you')
                       : (isPublic ? (message.profiles?.full_name || "Anonymous") : "Anonymous");
@@ -256,22 +257,31 @@ const Community = () => {
                         key={message.id}
                         className={`flex gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"}`}
                       >
-                        <button
-                          onClick={() => {
-                            if (!isOwn) {
-                              navigate(`/messages?user=${message.user_id}`);
-                            }
-                          }}
-                          className={`flex-shrink-0 ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
-                          disabled={isOwn}
-                        >
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={displayAvatar} />
-                            <AvatarFallback>
-                              {avatarFallback}
-                            </AvatarFallback>
-                          </Avatar>
-                        </button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => {
+                                  if (!isOwn) {
+                                    navigate(`/messages?user=${message.user_id}`);
+                                  }
+                                }}
+                                className={`flex-shrink-0 ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
+                                disabled={isOwn}
+                              >
+                                <Avatar className="h-10 w-10">
+                                  <AvatarImage src={displayAvatar} />
+                                  <AvatarFallback>
+                                    {avatarFallback}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{displayName}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
                           <span className="text-xs font-medium mb-1 text-foreground">
                             {displayName}
