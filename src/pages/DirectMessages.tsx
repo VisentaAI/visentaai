@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Send, ArrowLeft, Plus, Search } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { ProfileCard } from "@/components/ProfileCard";
 
 interface Conversation {
   id: string;
@@ -61,6 +62,8 @@ export default function DirectMessages() {
   const [showNewChat, setShowNewChat] = useState(false);
   const [searchUsers, setSearchUsers] = useState("");
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
+  const [showProfileCard, setShowProfileCard] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesChannelRef = useRef<any>(null);
 
@@ -448,7 +451,15 @@ export default function DirectMessages() {
               <>
                  <div className="border-b border-border p-4">
                    <div className="flex items-center gap-3">
-                     <div className="relative">
+                     <button
+                       onClick={() => {
+                         if (activeConversationData?.other_user?.id) {
+                           setSelectedProfileUserId(activeConversationData.other_user.id);
+                           setShowProfileCard(true);
+                         }
+                       }}
+                       className="relative hover:opacity-80 transition-opacity cursor-pointer"
+                     >
                        <Avatar className="h-10 w-10">
                          <AvatarImage src={
                            (activeConversationData?.other_user?.is_public ?? true)
@@ -468,7 +479,7 @@ export default function DirectMessages() {
                            onlineUserIds.has(activeConversationData?.other_user?.id || "") ? 'bg-green-500' : 'bg-muted'
                          }`}
                        />
-                     </div>
+                     </button>
                      <div>
                        <p className="font-medium text-foreground">
                          {(activeConversationData?.other_user?.is_public ?? true)
@@ -529,6 +540,14 @@ export default function DirectMessages() {
           </Card>
         </div>
       </div>
+      
+      {selectedProfileUserId && (
+        <ProfileCard
+          userId={selectedProfileUserId}
+          open={showProfileCard}
+          onOpenChange={setShowProfileCard}
+        />
+      )}
     </div>
   );
 }

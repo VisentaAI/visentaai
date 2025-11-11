@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/contexts/PresenceContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ProfileCard } from "@/components/ProfileCard";
 
 interface CommunityMessage {
   id: string;
@@ -46,6 +47,8 @@ const Community = () => {
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
+  const [showProfileCard, setShowProfileCard] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -272,7 +275,8 @@ const Community = () => {
                               <button
                                 onClick={() => {
                                   if (!isOwn) {
-                                    navigate(`/messages?user=${message.user_id}`);
+                                    setSelectedProfileUserId(message.user_id);
+                                    setShowProfileCard(true);
                                   }
                                 }}
                                 className={`flex-shrink-0 relative ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
@@ -374,7 +378,8 @@ const Community = () => {
                           key={user.user_id}
                           onClick={() => {
                             if (!isOwn) {
-                              navigate(`/messages?user=${user.user_id}`);
+                              setSelectedProfileUserId(user.user_id);
+                              setShowProfileCard(true);
                             }
                           }}
                           disabled={isOwn}
@@ -411,6 +416,14 @@ const Community = () => {
           </SidebarContent>
         </Sidebar>
       </div>
+      
+      {selectedProfileUserId && (
+        <ProfileCard
+          userId={selectedProfileUserId}
+          open={showProfileCard}
+          onOpenChange={setShowProfileCard}
+        />
+      )}
     </SidebarProvider>
   );
 };
