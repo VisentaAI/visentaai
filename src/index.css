@@ -63,13 +63,13 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 10%;
+    --background: 0 0% 5%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 12%;
+    --card: 0 0% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 12%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 0 0% 98%;
@@ -119,8 +119,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    background: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 95%));
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  body:not(.dark) {
+    background: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 95%));
+  }
+  
+  body.dark {
+    background: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 8%));
   }
   
   /* Glassmorphism utility */

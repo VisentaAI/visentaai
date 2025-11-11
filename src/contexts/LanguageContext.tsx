@@ -115,6 +115,14 @@ const translations = {
     'enterFullName': 'Enter your full name',
     'tellUsAboutYourself': 'Tell us about yourself',
     'updateProfile': 'Update Profile',
+    
+    // Community
+    'community.title': 'Community Chat',
+    'community.chat': 'Live Chat',
+    'community.description': 'Share your learning experiences with other learners',
+    'community.activeUsers': 'active users',
+    'community.you': 'You',
+    'community.typePlaceholder': 'Type your message...',
   },
   id: {
     // Navbar
@@ -222,6 +230,14 @@ const translations = {
     'enterFullName': 'Masukkan nama lengkap Anda',
     'tellUsAboutYourself': 'Ceritakan tentang diri Anda',
     'updateProfile': 'Perbarui Profil',
+    
+    // Community
+    'community.title': 'Chat Komunitas',
+    'community.chat': 'Chat Langsung',
+    'community.description': 'Bagikan pengalaman belajar Anda dengan pelajar lain',
+    'community.activeUsers': 'pengguna aktif',
+    'community.you': 'Anda',
+    'community.typePlaceholder': 'Ketik pesan Anda...',
   },
 };
 
