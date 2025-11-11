@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Send, Bot, User, Loader2, LogOut, Plus, MessageSquare, BookOpen, Calculator, Globe, Headphones, Trash2 } from "lucide-react";
+import { Send, Bot, User, Loader2, LogOut, Plus, MessageSquare, BookOpen, Calculator, Globe, Headphones, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -424,8 +424,12 @@ const Chat = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-primary/5 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="min-w-0">
+          <div className="flex items-center justify-between gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="shrink-0">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Home
+            </Button>
+            <div className="min-w-0 flex-1">
               <h2 className="text-xl font-bold flex items-center gap-2 truncate">
                 {getCategoryIcon(activeCategory)}
                 {getCategoryTitle(activeCategory)}
@@ -435,7 +439,7 @@ const Chat = () => {
               </p>
             </div>
             {activeCategory === "support" && (
-              <Button variant="outline" size="sm" className="shrink-0 ml-4">
+              <Button variant="outline" size="sm" className="shrink-0">
                 <Headphones className="h-4 w-4 mr-2" />
                 Hubungi Dev
               </Button>
