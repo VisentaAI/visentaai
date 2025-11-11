@@ -1,11 +1,14 @@
 import { CheckCircle2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const About = () => {
+  const { t } = useLanguage();
+
   const benefits = [
-    "Teknologi AI terbaru dari penelitian terdepan",
-    "Kurikulum yang dirancang oleh expert di bidang pendidikan",
-    "Update konten regular mengikuti perkembangan teknologi",
-    "Sertifikat yang diakui industri"
+    t('about.benefit1'),
+    t('about.benefit2'),
+    t('about.benefit3'),
+    t('about.benefit4')
   ];
 
   return (
@@ -16,17 +19,13 @@ const About = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-bold">
-              Tentang <span className="gradient-text">VisentaAI</span>
+              {t('about.title')} <span className="gradient-text">VisentaAI</span>
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              VisentaAI adalah platform pembelajaran berbasis AI yang revolusioner, 
-              dikembangkan untuk membuat pendidikan lebih personal, efektif, dan accessible 
-              bagi semua orang.
+              {t('about.desc1')}
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Kami percaya bahwa setiap orang belajar dengan cara yang berbeda. 
-              Dengan teknologi AI terdepan, kami menghadirkan pengalaman belajar yang 
-              benar-benar disesuaikan dengan kebutuhan unik setiap individu.
+              {t('about.desc2')}
             </p>
             
             <div className="space-y-4 pt-4">
@@ -42,19 +41,19 @@ const About = () => {
           <div className="grid grid-cols-2 gap-6">
             <div className="glass rounded-2xl p-6 text-center space-y-2 hover-lift">
               <div className="text-4xl font-bold gradient-text">100+</div>
-              <div className="text-sm text-muted-foreground">Mitra Institusi</div>
+              <div className="text-sm text-muted-foreground">{t('about.partners')}</div>
             </div>
             <div className="glass rounded-2xl p-6 text-center space-y-2 hover-lift mt-8">
               <div className="text-4xl font-bold gradient-text">24/7</div>
-              <div className="text-sm text-muted-foreground">Support AI</div>
+              <div className="text-sm text-muted-foreground">{t('about.support')}</div>
             </div>
             <div className="glass rounded-2xl p-6 text-center space-y-2 hover-lift">
               <div className="text-4xl font-bold gradient-text">15+</div>
-              <div className="text-sm text-muted-foreground">Bahasa</div>
+              <div className="text-sm text-muted-foreground">{t('about.languages')}</div>
             </div>
             <div className="glass rounded-2xl p-6 text-center space-y-2 hover-lift mt-8">
               <div className="text-4xl font-bold gradient-text">∞</div>
-              <div className="text-sm text-muted-foreground">Kemungkinan</div>
+              <div className="text-sm text-muted-foreground">{t('about.possibilities')}</div>
             </div>
           </div>
         </div>

@@ -1,9 +1,11 @@
 import { Mail, MapPin, Phone, Twitter, Instagram } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo.png";
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const scrollToSection = (id: string) => {
     if (location.pathname !== '/') {
       navigate('/', {
@@ -29,10 +31,10 @@ const Footer = () => {
               <span className="text-2xl font-bold gradient-text">VisentaAI</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Platform pembelajaran berbasis AI yang revolusioner untuk masa depan pendidikan yang lebih cerdas.
+              {t('footer.description')}
             </p>
             <p className="text-sm text-muted-foreground mt-4">
-              <span className="font-semibold text-foreground">Founder & CEO:</span> RestuAlfauzi
+              <span className="font-semibold text-foreground">{t('footer.founder')}:</span> RestuAlfauzi
             </p>
             <div className="flex space-x-4 mt-4">
               <a href="https://x.com/VisentaAI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-primary hover:text-white transition-all">
@@ -45,67 +47,64 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4">Navigasi</h3>
+            <h3 className="font-bold text-lg mb-4">{t('footer.navigation')}</h3>
             <ul className="space-y-3">
               <li>
                 <button onClick={() => scrollToSection("home")} className="text-left text-muted-foreground hover:text-primary transition-colors">
-                  Home
+                  {t('nav.home')}
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollToSection("features")} className="text-left text-muted-foreground hover:text-primary transition-colors">
-                  Fitur
+                  {t('nav.features')}
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollToSection("about")} className="text-left text-muted-foreground hover:text-primary transition-colors">
-                  Tentang
+                  {t('nav.about')}
                 </button>
               </li>
               <li>
-                
-              </li>
-              <li>
                 <button onClick={() => scrollToSection("testimonials")} className="text-left text-muted-foreground hover:text-primary transition-colors">
-                  Testimoni
+                  {t('nav.testimonials')}
                 </button>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4">Sumber Daya</h3>
+            <h3 className="font-bold text-lg mb-4">{t('footer.resources')}</h3>
             <ul className="space-y-3">
               <li>
                 <a href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
-                  Blog
+                  {t('footer.blog')}
                 </a>
               </li>
               <li>
                 <a href="/dokumentasi" className="text-muted-foreground hover:text-primary transition-colors">
-                  Dokumentasi
+                  {t('footer.documentation')}
                 </a>
               </li>
               <li>
                 <a href="/tutorial" className="text-muted-foreground hover:text-primary transition-colors">
-                  Tutorial
+                  {t('footer.tutorial')}
                 </a>
               </li>
               <li>
                 <a href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
-                  FAQ
+                  {t('footer.faq')}
                 </a>
               </li>
               <li>
                 <a href="/support" className="text-muted-foreground hover:text-primary transition-colors">
-                  Support
+                  {t('footer.support')}
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4">Kontak</h3>
+            <h3 className="font-bold text-lg mb-4">{t('footer.contact')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
@@ -127,7 +126,7 @@ const Footer = () => {
 
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-muted-foreground text-sm">© 2025 VisentaAI. All rights reserved.</p>
+            <p className="text-muted-foreground text-sm">© 2025 VisentaAI. {t('footer.rights')}</p>
             <div className="flex space-x-6">
               <a href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Privacy Policy

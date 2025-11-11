@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
 const Navbar = () => {
   const navigate = useNavigate();
@@ -9,6 +17,8 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isHomePage = location.pathname === "/";
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -49,21 +59,42 @@ const Navbar = () => {
         </button>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
-          <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors">
-            Home
+        <div className="hidden md:flex items-center space-x-4">
+          <button onClick={() => scrollToSection("home")} className="text-foreground hover:text-primary transition-colors px-3">
+            {t('nav.home')}
           </button>
-          <button onClick={() => scrollToSection("features")} className="text-foreground hover:text-primary transition-colors">
-            Fitur
+          <button onClick={() => scrollToSection("features")} className="text-foreground hover:text-primary transition-colors px-3">
+            {t('nav.features')}
           </button>
-          <button onClick={() => scrollToSection("about")} className="text-foreground hover:text-primary transition-colors">
-            Tentang
+          <button onClick={() => scrollToSection("about")} className="text-foreground hover:text-primary transition-colors px-3">
+            {t('nav.about')}
           </button>
-          <button onClick={() => scrollToSection("testimonials")} className="text-foreground hover:text-primary transition-colors">
-            Testimoni
+          <button onClick={() => scrollToSection("testimonials")} className="text-foreground hover:text-primary transition-colors px-3">
+            {t('nav.testimonials')}
           </button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Languages className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setLanguage('en')}>
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLanguage('id')}>
+                Bahasa Indonesia
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+
           <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-            Chat AI
+            {t('nav.chat')}
           </Button>
         </div>
 
@@ -77,19 +108,31 @@ const Navbar = () => {
       {isMobileMenuOpen && <div className="md:hidden glass border-t border-border">
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <button onClick={() => scrollToSection("home")} className="text-left text-foreground hover:text-primary transition-colors">
-              Home
+              {t('nav.home')}
             </button>
             <button onClick={() => scrollToSection("features")} className="text-left text-foreground hover:text-primary transition-colors">
-              Fitur
+              {t('nav.features')}
             </button>
             <button onClick={() => scrollToSection("about")} className="text-left text-foreground hover:text-primary transition-colors">
-              Tentang
+              {t('nav.about')}
             </button>
             <button onClick={() => scrollToSection("testimonials")} className="text-left text-foreground hover:text-primary transition-colors">
-              Testimoni
+              {t('nav.testimonials')}
             </button>
+            
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" onClick={() => setLanguage(language === 'en' ? 'id' : 'en')} className="flex-1">
+                <Languages className="h-4 w-4 mr-2" />
+                {language === 'en' ? 'EN' : 'ID'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={toggleTheme} className="flex-1">
+                {theme === 'dark' ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
+                {theme === 'dark' ? 'Light' : 'Dark'}
+              </Button>
+            </div>
+
             <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 w-full">
-              Chat AI
+              {t('nav.chat')}
             </Button>
           </div>
         </div>}

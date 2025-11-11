@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const testimonials = [
   {
@@ -46,15 +47,17 @@ const testimonials = [
 ];
 
 const Testimonials = () => {
+  const { t } = useLanguage();
+
   return (
     <section id="testimonials" className="py-24 px-4">
       <div className="container mx-auto">
         <div className="text-center mb-16 space-y-4 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold">
-            Apa Kata <span className="gradient-text">Mereka</span>
+            {t('testimonials.title')} <span className="gradient-text">{t('testimonials.title2')}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Ribuan pelajar telah merasakan transformasi cara belajar mereka dengan VisentaAI
+            {t('testimonials.subtitle')}
           </p>
         </div>
 
