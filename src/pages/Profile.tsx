@@ -85,7 +85,7 @@ const Profile = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Card>
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-2xl gradient-text">My Profile</CardTitle>
         </CardHeader>
@@ -93,7 +93,7 @@ const Profile = () => {
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
               <AvatarImage src={user?.user_metadata?.avatar_url || ""} />
-              <AvatarFallback className="text-2xl">
+              <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                 {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>

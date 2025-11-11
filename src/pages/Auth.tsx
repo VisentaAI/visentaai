@@ -21,13 +21,13 @@ const Auth = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        navigate("/");
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/dashboard");
+        navigate("/");
       }
     });
 
@@ -43,7 +43,7 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: fullName,
           },
@@ -84,7 +84,7 @@ const Auth = () => {
         }
       } else {
         toast.success("Login berhasil!");
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error: any) {
       toast.error("Terjadi kesalahan saat login");
@@ -99,7 +99,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/`,
         },
       });
 
