@@ -187,7 +187,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ background: 'var(--gradient-hero)' }}>
       <div className="container mx-auto px-4 py-24">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-4">

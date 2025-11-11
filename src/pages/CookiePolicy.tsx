@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CookiePolicy = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background" style={{ background: 'var(--gradient-hero)' }}>
       <Navbar />
       <div className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-4xl">

@@ -351,7 +351,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden" style={{ background: 'var(--gradient-hero)' }}>
       {/* Sidebar */}
       <div className="w-64 border-r bg-muted/30 flex flex-col hidden md:flex">
         <div className="p-4 border-b">
