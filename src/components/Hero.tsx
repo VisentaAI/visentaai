@@ -35,10 +35,14 @@ const Hero = () => {
       });
     }
 
+    let animationFrameId: number;
+
     const animate = () => {
+      const isDark = document.documentElement.classList.contains('dark');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+      // Use white particles in dark mode, black in light mode
+      ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
       ctx.lineWidth = 1;
       
       particles.forEach((particle, i) => {
@@ -50,7 +54,7 @@ const Hero = () => {
 
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)';
         ctx.fill();
 
         particles.slice(i + 1).forEach(other => {
@@ -67,7 +71,7 @@ const Hero = () => {
         });
       });
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
@@ -78,7 +82,24 @@ const Hero = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    // Listen for theme changes
+    const observer = new MutationObserver(() => {
+      // Theme changed, animation loop will pick up the new colors automatically
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      observer.disconnect();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, []);
 
   return (
