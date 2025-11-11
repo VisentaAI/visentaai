@@ -17,23 +17,27 @@ const Profile = () => {
   const [bio, setBio] = useState("");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setUser(session.user);
-        loadProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
+    checkAuthAndLoadProfile();
+  }, []);
+
+  const checkAuthAndLoadProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      setUser(session.user);
+      loadProfile(session.user.id);
+    } else {
+      setLoading(false);
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser(session.user);
+        loadProfile(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  };
 
   const loadProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -84,62 +88,66 @@ const Profile = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-2xl gradient-text">My Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={user?.user_metadata?.avatar_url || ""} />
-              <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-24">
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-2xl gradient-text">My Profile</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={user?.user_metadata?.avatar_url || ""} />
+                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                    {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">{user?.email}</p>
+                </div>
+              </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
-              <Input
-                id="displayName"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Enter your display name"
-              />
-            </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name</Label>
+                  <Input
+                    id="displayName"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Enter your display name"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Input
-                id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell us about yourself"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Input
+                    id="bio"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Tell us about yourself"
+                  />
+                </div>
 
-            <Button 
-              onClick={handleUpdateProfile} 
-              disabled={updating}
-              className="w-full"
-            >
-              {updating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update Profile"
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+                <Button 
+                  onClick={handleUpdateProfile} 
+                  disabled={updating}
+                  className="w-full"
+                >
+                  {updating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Profile"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+        </Card>
+        </div>
+      </div>
     </div>
   );
 };

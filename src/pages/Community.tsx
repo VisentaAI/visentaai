@@ -183,81 +183,85 @@ const Community = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <Card className="h-[calc(100vh-16rem)]">
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl gradient-text">{t('community.title')}</CardTitle>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>{activeUsers} {t('community.activeUsers')}</span>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 flex flex-col h-[calc(100%-5rem)]">
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
-              {messages.map((message) => {
-                const isOwn = message.user_id === currentUserId;
-                return (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"}`}
-                  >
-                    <button
-                      onClick={() => {
-                        if (!isOwn) {
-                          navigate(`/messages?user=${message.user_id}`);
-                        }
-                      }}
-                      className={`flex-shrink-0 ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
-                      disabled={isOwn}
-                    >
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={message.profiles?.avatar_url || ""} />
-                        <AvatarFallback>
-                          {message.profiles?.full_name?.[0]?.toUpperCase() ||
-                            message.profiles?.email?.[0]?.toUpperCase() ||
-                            "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                    </button>
-                    <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
-                      <span className="text-xs font-medium mb-1 text-foreground">
-                        {isOwn
-                          ? t('community.you')
-                          : message.profiles?.full_name || message.profiles?.email || "Anonymous"}
-                      </span>
-                      <Card
-                        className={`p-3 ${
-                          isOwn
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-foreground"
-                        }`}
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-24">
+        <div className="max-w-4xl mx-auto">
+          <Card className="h-[calc(100vh-16rem)]">
+            <CardHeader className="border-b">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl gradient-text">{t('community.title')}</CardTitle>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  <span>{activeUsers} {t('community.activeUsers')}</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 flex flex-col h-[calc(100%-5rem)]">
+              <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                <div className="space-y-4">
+                  {messages.map((message) => {
+                    const isOwn = message.user_id === currentUserId;
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"}`}
                       >
-                        <p className="text-sm break-words">{message.content}</p>
-                      </Card>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </ScrollArea>
+                        <button
+                          onClick={() => {
+                            if (!isOwn) {
+                              navigate(`/messages?user=${message.user_id}`);
+                            }
+                          }}
+                          className={`flex-shrink-0 ${!isOwn ? 'hover:opacity-80 transition-opacity cursor-pointer' : ''}`}
+                          disabled={isOwn}
+                        >
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={message.profiles?.avatar_url || ""} />
+                            <AvatarFallback>
+                              {message.profiles?.full_name?.[0]?.toUpperCase() ||
+                                message.profiles?.email?.[0]?.toUpperCase() ||
+                                "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </button>
+                        <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
+                          <span className="text-xs font-medium mb-1 text-foreground">
+                            {isOwn
+                              ? t('community.you')
+                              : message.profiles?.full_name || message.profiles?.email || "Anonymous"}
+                          </span>
+                          <Card
+                            className={`p-3 ${
+                              isOwn
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-foreground"
+                            }`}
+                          >
+                            <p className="text-sm break-words">{message.content}</p>
+                          </Card>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
 
-          <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder={t('community.typePlaceholder')}
-              disabled={sending}
-              className="flex-1"
-            />
-            <Button type="submit" disabled={sending || !newMessage.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </form>
-        </CardContent>
+              <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder={t('community.typePlaceholder')}
+                  disabled={sending}
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={sending || !newMessage.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </CardContent>
       </Card>
+        </div>
+      </div>
     </div>
   );
 };

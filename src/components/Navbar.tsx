@@ -93,9 +93,12 @@ const Navbar = () => {
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
-          <Button onClick={() => navigate("/dashboard")} variant="outline">
-            <User className="h-5 w-5 mr-2" />
-            Dashboard
+          <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
+            <User className="h-5 w-5" />
+          </Button>
+
+          <Button variant="ghost" size="icon" onClick={() => navigate("/community")}>
+            <Users className="h-5 w-5" />
           </Button>
 
           <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}>
@@ -140,9 +143,14 @@ const Navbar = () => {
               </Button>
             </div>
 
-            <Button onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+            <Button onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
               <User className="h-4 w-4 mr-2" />
-              Dashboard
+              Profile
+            </Button>
+
+            <Button onClick={() => { navigate("/community"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+              <Users className="h-4 w-4 mr-2" />
+              Community
             </Button>
 
             <Button onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
