@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages, User, Users } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
@@ -101,6 +101,10 @@ const Navbar = () => {
             <Users className="h-5 w-5" />
           </Button>
 
+          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}>
+            <MessageSquare className="h-5 w-5" />
+          </Button>
+
           <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
             {t('nav.chat')}
           </Button>
@@ -146,6 +150,11 @@ const Navbar = () => {
             <Button onClick={() => { navigate("/community"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
               <Users className="h-4 w-4 mr-2" />
               Community
+            </Button>
+
+            <Button onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Messages
             </Button>
 
             <Button onClick={() => navigate("/chat")} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 w-full">

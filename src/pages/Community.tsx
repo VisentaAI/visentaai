@@ -237,14 +237,24 @@ export default function Community() {
                       key={message.id}
                       className={`flex gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"}`}
                     >
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={message.profiles?.avatar_url || ""} />
-                        <AvatarFallback>
-                          {message.profiles?.full_name?.[0]?.toUpperCase() ||
-                            message.profiles?.email?.[0]?.toUpperCase() ||
-                            "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                      <button
+                        onClick={() => {
+                          if (!isOwn) {
+                            navigate(`/messages?user=${message.user_id}`);
+                          }
+                        }}
+                        className={`flex-shrink-0 ${!isOwn ? 'hover:opacity-80 transition-opacity' : ''}`}
+                        disabled={isOwn}
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={message.profiles?.avatar_url || ""} />
+                          <AvatarFallback>
+                            {message.profiles?.full_name?.[0]?.toUpperCase() ||
+                              message.profiles?.email?.[0]?.toUpperCase() ||
+                              "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </button>
                       <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium text-foreground">

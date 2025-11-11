@@ -123,6 +123,15 @@ const translations = {
     'community.activeUsers': 'active users',
     'community.you': 'You',
     'community.typePlaceholder': 'Type your message...',
+    
+    // Direct Messages
+    'dm.title': 'Direct Messages',
+    'dm.newChat': 'New Chat',
+    'dm.startNewChat': 'Start New Chat',
+    'dm.searchUsers': 'Search users...',
+    'dm.noConversations': 'No conversations yet. Start a new chat!',
+    'dm.selectConversation': 'Select a conversation to start messaging',
+    'dm.typePlaceholder': 'Type a message...',
   },
   id: {
     // Navbar
@@ -238,6 +247,15 @@ const translations = {
     'community.activeUsers': 'pengguna aktif',
     'community.you': 'Anda',
     'community.typePlaceholder': 'Ketik pesan Anda...',
+    
+    // Direct Messages
+    'dm.title': 'Pesan Langsung',
+    'dm.newChat': 'Chat Baru',
+    'dm.startNewChat': 'Mulai Chat Baru',
+    'dm.searchUsers': 'Cari pengguna...',
+    'dm.noConversations': 'Belum ada percakapan. Mulai chat baru!',
+    'dm.selectConversation': 'Pilih percakapan untuk mulai berkirim pesan',
+    'dm.typePlaceholder': 'Ketik pesan...',
   },
 };
 
