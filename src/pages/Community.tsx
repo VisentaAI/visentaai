@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users, ArrowLeft, Trash2 } from "lucide-react";
+import { Send, Users, ArrowLeft, Trash2, PanelRightOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 interface CommunityMessage {
   id: string;
@@ -17,6 +18,16 @@ interface CommunityMessage {
   content: string;
   created_at: string;
   profiles?: {
+    full_name: string | null;
+    avatar_url: string | null;
+    email: string | null;
+    is_public: boolean | null;
+  };
+}
+
+interface OnlineUser {
+  user_id: string;
+  profile?: {
     full_name: string | null;
     avatar_url: string | null;
     email: string | null;
@@ -34,6 +45,7 @@ const Community = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [activeUsers, setActiveUsers] = useState(0);
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -137,7 +149,7 @@ const Community = () => {
   const setupPresence = () => {
     const channel = supabase.channel("online-users");
 
-    const updatePresenceState = () => {
+    const updatePresenceState = async () => {
       const state = channel.presenceState();
       const userIds = new Set<string>();
       Object.values(state).forEach((presences: any) => {
@@ -149,6 +161,23 @@ const Community = () => {
       });
       setActiveUsers(userIds.size);
       setOnlineUserIds(userIds);
+
+      // Fetch profiles for online users
+      if (userIds.size > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url, email, is_public")
+          .in("id", Array.from(userIds));
+
+        const usersWithProfiles: OnlineUser[] = Array.from(userIds).map(userId => ({
+          user_id: userId,
+          profile: profilesData?.find(p => p.id === userId) || undefined,
+        }));
+
+        setOnlineUsers(usersWithProfiles);
+      } else {
+        setOnlineUsers([]);
+      }
     };
 
     channel
@@ -221,27 +250,36 @@ const Community = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-24">
-        <div className="max-w-4xl mx-auto">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Button>
-          <Card className="h-[calc(100vh-16rem)]">
-            <CardHeader className="border-b">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl gradient-text">{t('community.title')}</CardTitle>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4" />
-                  <span>{activeUsers} {t('community.activeUsers')}</span>
-                </div>
-              </div>
-            </CardHeader>
+    <SidebarProvider>
+      <div className="min-h-screen bg-background w-full flex">
+        <div className="flex-1 flex flex-col">
+          <div className="container mx-auto px-4 py-24">
+            <div className="max-w-4xl mx-auto">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/")}
+                className="mb-4"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+              <Card className="h-[calc(100vh-16rem)]">
+                <CardHeader className="border-b">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl gradient-text">{t('community.title')}</CardTitle>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Users className="h-4 w-4" />
+                        <span>{activeUsers} {t('community.activeUsers')}</span>
+                      </div>
+                      <SidebarTrigger>
+                        <Button variant="outline" size="icon">
+                          <PanelRightOpen className="h-4 w-4" />
+                        </Button>
+                      </SidebarTrigger>
+                    </div>
+                  </div>
+                </CardHeader>
             <CardContent className="p-0 flex flex-col h-[calc(100%-5rem)]">
               <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-4">
@@ -340,10 +378,76 @@ const Community = () => {
                 </Button>
               </form>
             </CardContent>
-      </Card>
+              </Card>
+            </div>
+          </div>
         </div>
+
+        <Sidebar side="right" className="border-l">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-lg font-semibold px-4 py-3">
+                {t('community.activeUsers')} ({activeUsers})
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <ScrollArea className="h-[calc(100vh-12rem)]">
+                  <div className="space-y-2 px-4 py-2">
+                    {onlineUsers.map((user) => {
+                      const isOwn = user.user_id === currentUserId;
+                      const isPublic = user.profile?.is_public ?? true;
+                      const displayName = isOwn 
+                        ? t('community.you')
+                        : (isPublic ? (user.profile?.full_name || "Anonymous") : "Anonymous");
+                      const displayAvatar = isOwn || isPublic ? user.profile?.avatar_url || "" : "";
+                      const avatarFallback = isOwn 
+                        ? (user.profile?.full_name?.[0]?.toUpperCase() ||
+                           user.profile?.email?.[0]?.toUpperCase() ||
+                           "U")
+                        : (isPublic ? (user.profile?.full_name?.[0]?.toUpperCase() || "A") : "A");
+
+                      return (
+                        <button
+                          key={user.user_id}
+                          onClick={() => {
+                            if (!isOwn) {
+                              navigate(`/messages?user=${user.user_id}`);
+                            }
+                          }}
+                          disabled={isOwn}
+                          className={`flex items-center gap-3 w-full p-2 rounded-lg transition-colors ${
+                            !isOwn ? 'hover:bg-muted cursor-pointer' : ''
+                          }`}
+                        >
+                          <div className="relative">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={displayAvatar} />
+                              <AvatarFallback>{avatarFallback}</AvatarFallback>
+                            </Avatar>
+                            <span 
+                              className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500"
+                              aria-label="Online"
+                            />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-medium text-foreground">{displayName}</p>
+                            <p className="text-xs text-muted-foreground">Online</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                    {onlineUsers.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No users online
+                      </p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
