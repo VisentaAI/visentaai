@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Upload, LogOut, Trash2 } from "lucide-react";
+import { Loader2, ArrowLeft, Upload, LogOut, Trash2, MessageSquareOff } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   AlertDialog,
@@ -35,6 +35,7 @@ const Profile = () => {
   const [isPublic, setIsPublic] = useState(true);
   const [emailVisible, setEmailVisible] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [deletingChats, setDeletingChats] = useState(false);
 
   useEffect(() => {
     checkAuthAndLoadProfile();
@@ -176,6 +177,65 @@ const Profile = () => {
     toast.success("Account deleted successfully");
     navigate("/landing");
     setDeleting(false);
+  };
+
+  const handleDeleteAllChats = async () => {
+    if (!user) return;
+
+    setDeletingChats(true);
+
+    try {
+      // Get all AI chat conversation IDs
+      const { data: conversations } = await supabase
+        .from("chat_conversations")
+        .select("id")
+        .eq("user_id", user.id);
+
+      if (conversations && conversations.length > 0) {
+        const conversationIds = conversations.map(c => c.id);
+        
+        // Delete all AI chat messages
+        await supabase
+          .from("chat_messages")
+          .delete()
+          .in("conversation_id", conversationIds);
+
+        // Delete all AI chat conversations
+        await supabase
+          .from("chat_conversations")
+          .delete()
+          .eq("user_id", user.id);
+      }
+
+      // Get all direct conversation IDs
+      const { data: directConvs } = await supabase
+        .from("direct_conversations")
+        .select("id")
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+
+      if (directConvs && directConvs.length > 0) {
+        const directConvIds = directConvs.map(c => c.id);
+        
+        // Delete all direct messages
+        await supabase
+          .from("direct_messages")
+          .delete()
+          .in("conversation_id", directConvIds);
+
+        // Delete all direct conversations
+        await supabase
+          .from("direct_conversations")
+          .delete()
+          .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+      }
+
+      toast.success("All chats deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting chats:", error);
+      toast.error("Failed to delete all chats");
+    } finally {
+      setDeletingChats(false);
+    }
   };
 
   if (loading) {
@@ -320,9 +380,52 @@ const Profile = () => {
                   <div className="space-y-2">
                     <Label className="text-destructive">Danger Zone</Label>
                     <p className="text-sm text-muted-foreground">
-                      Deleting your account is permanent and cannot be undone. All your data will be removed.
+                      These actions are permanent and cannot be undone.
                     </p>
                   </div>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="outline"
+                        className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        disabled={deletingChats}
+                      >
+                        <MessageSquareOff className="mr-2 h-4 w-4" />
+                        Delete All Chats
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete all your conversations including:
+                          <ul className="list-disc list-inside mt-2 space-y-1">
+                            <li>All AI chat conversations</li>
+                            <li>All direct messages with other users</li>
+                            <li>All conversation history</li>
+                          </ul>
+                          This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAllChats}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {deletingChats ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            "Yes, delete all chats"
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

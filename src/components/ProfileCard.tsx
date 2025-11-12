@@ -78,10 +78,9 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
   }
 
   const isPublic = profile.is_public ?? true;
-  const emailVisible = profile.email_visible ?? true;
   const displayName = isPublic ? (profile.full_name || "Anonymous") : "Anonymous";
   const displayAvatar = isPublic ? profile.avatar_url : null;
-  const displayEmail = isPublic && emailVisible ? profile.email : null;
+  const displayEmail = null; // Never show email to other users for privacy
   const displayBio = isPublic ? profile.bio : null;
   const avatarFallback = isPublic 
     ? (profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || "U")
