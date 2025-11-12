@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import StatusStories from "@/components/StatusStories";
 import Features from "@/components/Features";
 import About from "@/components/About";
 import Testimonials from "@/components/Testimonials";
@@ -47,6 +48,7 @@ const Index = () => {
     <div className="min-h-screen bg-background" style={{ background: 'var(--gradient-hero)' }}>
       <Navbar />
       <Hero />
+      <StatusStories />
       <Features />
       <About />
       <Testimonials />
