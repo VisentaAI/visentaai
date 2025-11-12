@@ -18,6 +18,7 @@ import FAQ from "./pages/FAQ";
 import Support from "./pages/Support";
 import Chat from "./pages/Chat";
 import Lessons from "./pages/Lessons";
+import Friends from "./pages/Friends";
 import Auth from "./pages/Auth";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/faq" element={<FAQ />} />
           <Route path="/support" element={<Support />} />
           <Route path="/lessons" element={<Lessons />} />
+          <Route path="/friends" element={<Friends />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

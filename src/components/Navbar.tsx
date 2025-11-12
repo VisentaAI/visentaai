@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search, Clock, BookOpen } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search, Clock, BookOpen, UserPlus } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage, languageNames } from "@/contexts/LanguageContext";
 import { 
@@ -177,6 +177,10 @@ const Navbar = () => {
             <User className="h-5 w-5" />
           </Button>
 
+          <Button variant="ghost" size="icon" onClick={() => navigate("/friends")}>
+            <UserPlus className="h-5 w-5" />
+          </Button>
+
           <Button variant="ghost" size="icon" onClick={() => navigate("/community")} className="relative">
             <Users className="h-5 w-5" />
             {communityUnread > 0 && (
@@ -300,6 +304,11 @@ const Navbar = () => {
             <Button onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
               <User className="h-4 w-4 mr-2" />
               Profile
+            </Button>
+
+            <Button onClick={() => { navigate("/friends"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Friends
             </Button>
 
             <Button onClick={() => { navigate("/community"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full relative">
