@@ -319,6 +319,67 @@ export type Database = {
         }
         Relationships: []
       }
+      private_community_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          community_id: string
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          invited_by: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          community_id: string
+          created_at?: string
+          email?: string | null
+          expires_at: string
+          id?: string
+          invited_by: string
+          status?: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          community_id?: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "private_community_invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "private_community_invitations_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "private_communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "private_community_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       private_community_members: {
         Row: {
           community_id: string

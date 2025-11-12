@@ -27,6 +27,7 @@ import Community from "./pages/Community";
 import DirectMessages from "./pages/DirectMessages";
 import PrivateCommunities from "./pages/PrivateCommunities";
 import PrivateCommunityChat from "./pages/PrivateCommunityChat";
+import CommunityInvite from "./pages/CommunityInvite";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/messages" element={<DirectMessages />} />
           <Route path="/private-communities" element={<PrivateCommunities />} />
           <Route path="/private-community/:communityId" element={<PrivateCommunityChat />} />
+          <Route path="/invite" element={<CommunityInvite />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Send, ArrowLeft, Settings, Users, UserPlus } from 'lucide-react';
+import { Send, ArrowLeft, Settings, Users, UserPlus, Mail, Link2, Copy, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
+import { z } from 'zod';
 import { Badge } from '@/components/ui/badge';
 
 interface Community {
@@ -47,6 +49,19 @@ interface Profile {
   avatar_url: string | null;
 }
 
+interface Invitation {
+  id: string;
+  email: string | null;
+  token: string;
+  status: string;
+  expires_at: string;
+  created_at: string;
+}
+
+const emailSchema = z.object({
+  email: z.string().trim().email({ message: "Invalid email address" }).max(255)
+});
+
 export default function PrivateCommunityChat() {
   const { communityId } = useParams();
   const navigate = useNavigate();
@@ -66,6 +81,9 @@ export default function PrivateCommunityChat() {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [communityData, setCommunityData] = useState({ name: '', description: '', logo_url: '' });
   const [uploading, setUploading] = useState(false);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [sendingInvite, setSendingInvite] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -139,6 +157,15 @@ export default function PrivateCommunityChat() {
           .neq('id', currentUserId);
         
         setAllProfiles(profilesData || []);
+        
+        // Load invitations
+        const { data: invitationsData } = await supabase
+          .from('private_community_invitations')
+          .select('*')
+          .eq('community_id', communityId)
+          .order('created_at', { ascending: false });
+        
+        setInvitations(invitationsData || []);
       }
     } catch (error: any) {
       toast({
@@ -334,6 +361,147 @@ export default function PrivateCommunityChat() {
     }
   };
 
+  const generateInviteLink = async () => {
+    try {
+      // Generate random token
+      const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      // Create invitation that expires in 7 days
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
+      const { error } = await supabase
+        .from('private_community_invitations')
+        .insert({
+          community_id: communityId,
+          invited_by: currentUserId,
+          token,
+          expires_at: expiresAt.toISOString()
+        });
+
+      if (error) throw error;
+
+      const inviteUrl = `${window.location.origin}/invite?token=${token}`;
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(inviteUrl);
+      
+      toast({
+        title: "Invitation Link Created",
+        description: "Link copied to clipboard!"
+      });
+
+      loadCommunityData();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const sendEmailInvite = async () => {
+    if (!inviteEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate email
+    const validation = emailSchema.safeParse({ email: inviteEmail });
+    if (!validation.success) {
+      toast({
+        title: "Error",
+        description: validation.error.issues[0].message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSendingInvite(true);
+    try {
+      // Generate token
+      const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
+      const { error } = await supabase
+        .from('private_community_invitations')
+        .insert({
+          community_id: communityId,
+          invited_by: currentUserId,
+          email: validation.data.email,
+          token,
+          expires_at: expiresAt.toISOString()
+        });
+
+      if (error) throw error;
+
+      // TODO: Call edge function to send email when Resend API key is configured
+      // For now, just copy the link
+      const inviteUrl = `${window.location.origin}/invite?token=${token}`;
+      await navigator.clipboard.writeText(inviteUrl);
+
+      toast({
+        title: "Invitation Created",
+        description: "Invitation link copied! (Email sending requires Resend API key)"
+      });
+
+      setInviteEmail('');
+      loadCommunityData();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setSendingInvite(false);
+    }
+  };
+
+  const copyInviteLink = async (token: string) => {
+    const inviteUrl = `${window.location.origin}/invite?token=${token}`;
+    await navigator.clipboard.writeText(inviteUrl);
+    toast({
+      title: "Copied!",
+      description: "Invitation link copied to clipboard"
+    });
+  };
+
+  const deleteInvitation = async (invitationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('private_community_invitations')
+        .delete()
+        .eq('id', invitationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invitation deleted"
+      });
+
+      loadCommunityData();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center">
@@ -428,56 +596,65 @@ export default function PrivateCommunityChat() {
                       <Settings className="w-5 h-5" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
                     <DialogHeader>
                       <DialogTitle>Community Settings</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-6 py-4">
-                      <div className="space-y-4">
-                        <h3 className="font-semibold">Community Details</h3>
-                        <div className="space-y-2">
-                          <Label>Community Name</Label>
-                          <Input
-                            value={communityData.name}
-                            onChange={(e) => setCommunityData({ ...communityData, name: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={communityData.description}
-                            onChange={(e) => setCommunityData({ ...communityData, description: e.target.value })}
-                            rows={3}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Logo</Label>
-                          <div className="flex items-center gap-4">
-                            {communityData.logo_url && (
-                              <Avatar className="w-16 h-16">
-                                <AvatarImage src={communityData.logo_url} />
-                                <AvatarFallback>{communityData.name[0]}</AvatarFallback>
-                              </Avatar>
-                            )}
+                    <Tabs defaultValue="details" className="flex-1 flex flex-col overflow-hidden">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="details">Details</TabsTrigger>
+                        <TabsTrigger value="members">Members</TabsTrigger>
+                        <TabsTrigger value="invitations">Invitations</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="details" className="space-y-4 overflow-y-auto p-4">
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Community Information</h3>
+                          <div className="space-y-2">
+                            <Label>Community Name</Label>
                             <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleLogoUpload}
-                              disabled={uploading}
+                              value={communityData.name}
+                              onChange={(e) => setCommunityData({ ...communityData, name: e.target.value })}
                             />
                           </div>
+                          <div className="space-y-2">
+                            <Label>Description</Label>
+                            <Textarea
+                              value={communityData.description}
+                              onChange={(e) => setCommunityData({ ...communityData, description: e.target.value })}
+                              rows={3}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Logo</Label>
+                            <div className="flex items-center gap-4">
+                              {communityData.logo_url && (
+                                <Avatar className="w-16 h-16">
+                                  <AvatarImage src={communityData.logo_url} />
+                                  <AvatarFallback>{communityData.name[0]}</AvatarFallback>
+                                </Avatar>
+                              )}
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleLogoUpload}
+                                disabled={uploading}
+                              />
+                            </div>
+                          </div>
+                          <Button onClick={handleUpdateCommunity} disabled={uploading} className="w-full">
+                            Save Changes
+                          </Button>
                         </div>
-                        <Button onClick={handleUpdateCommunity} disabled={uploading}>
-                          Save Changes
-                        </Button>
-                      </div>
+                      </TabsContent>
 
-                      <div className="space-y-4">
-                        <h3 className="font-semibold flex items-center gap-2">
-                          <Users className="w-5 h-5" />
-                          Members ({members.length})
-                        </h3>
-                        <ScrollArea className="h-64 border rounded-md p-2">
+                      <TabsContent value="members" className="overflow-y-auto p-4">
+                        <div className="space-y-4">
+                          <h3 className="font-semibold flex items-center gap-2">
+                            <Users className="w-5 h-5" />
+                            Members ({members.length})
+                          </h3>
+                          <div className="space-y-2 max-h-96 overflow-y-auto border rounded-md p-2">
                           {members.map(member => (
                             <div key={member.id} className="flex items-center justify-between p-3 hover:bg-accent rounded-lg">
                               <div className="flex items-center gap-3">
@@ -503,9 +680,90 @@ export default function PrivateCommunityChat() {
                               )}
                             </div>
                           ))}
-                        </ScrollArea>
-                      </div>
-                    </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="invitations" className="overflow-y-auto p-4">
+                        <div className="space-y-4">
+                          <div className="space-y-3">
+                            <h3 className="font-semibold flex items-center gap-2">
+                              <Link2 className="w-5 h-5" />
+                              Create Invitation
+                            </h3>
+                            <div className="flex gap-2">
+                              <Button onClick={generateInviteLink} variant="outline" className="flex-1">
+                                <Link2 className="w-4 h-4 mr-2" />
+                                Generate Link
+                              </Button>
+                            </div>
+                            
+                            <div className="pt-2">
+                              <Label>Invite by Email</Label>
+                              <div className="flex gap-2 mt-2">
+                                <Input
+                                  type="email"
+                                  placeholder="Enter email address"
+                                  value={inviteEmail}
+                                  onChange={(e) => setInviteEmail(e.target.value)}
+                                  className="flex-1"
+                                />
+                                <Button onClick={sendEmailInvite} disabled={sendingInvite}>
+                                  <Mail className="w-4 h-4 mr-2" />
+                                  Send
+                                </Button>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Email sending requires Resend API key configuration
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <h3 className="font-semibold">Active Invitations ({invitations.filter(i => i.status === 'pending').length})</h3>
+                            <div className="space-y-2 max-h-80 overflow-y-auto border rounded-md p-2">
+                              {invitations.filter(i => i.status === 'pending').length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">No active invitations</p>
+                              ) : (
+                                invitations.filter(i => i.status === 'pending').map(invitation => (
+                                  <div key={invitation.id} className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-accent/50 transition-colors">
+                                    <div className="flex-1 min-w-0">
+                                      {invitation.email && (
+                                        <p className="font-medium text-sm truncate">{invitation.email}</p>
+                                      )}
+                                      <p className="text-xs text-muted-foreground">
+                                        Expires: {new Date(invitation.expires_at).toLocaleDateString()}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        Created: {new Date(invitation.created_at).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => copyInviteLink(invitation.token)}
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={() => deleteInvitation(invitation.id)}
+                                      >
+                                        <Trash className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </DialogContent>
                 </Dialog>
               </>
