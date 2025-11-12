@@ -186,25 +186,40 @@ const Navbar = () => {
             )}
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="relative">
-            <MessageSquare className="h-5 w-5" />
-            {directUnread > 0 && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-              >
-                {directUnread > 9 ? "9+" : directUnread}
-              </Badge>
-            )}
-          </Button>
-
-          <Button variant="ghost" size="icon" onClick={() => navigate("/status")}>
-            <Clock className="h-5 w-5" />
-          </Button>
-
-          <Button variant="ghost" size="icon" onClick={() => navigate("/private-communities")} title="Private Communities">
-            <Shield className="h-5 w-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <MessageSquare className="h-5 w-5" />
+                {directUnread > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {directUnread > 9 ? "9+" : directUnread}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => navigate("/messages")} className="cursor-pointer">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                <span>Direct Messages</span>
+                {directUnread > 0 && (
+                  <Badge variant="destructive" className="ml-auto">
+                    {directUnread > 9 ? "9+" : directUnread}
+                  </Badge>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/status")} className="cursor-pointer">
+                <Clock className="h-4 w-4 mr-2" />
+                <span>Status</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/private-communities")} className="cursor-pointer">
+                <Shield className="h-4 w-4 mr-2" />
+                <span>Private Communities</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
             {t('nav.chat')}
@@ -294,28 +309,41 @@ const Navbar = () => {
               )}
             </Button>
 
-            <Button onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full relative">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Messages
-              {directUnread > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                >
-                  {directUnread > 9 ? "9+" : directUnread}
-                </Badge>
-              )}
-            </Button>
-
-            <Button onClick={() => { navigate("/status"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
-              <Clock className="h-4 w-4 mr-2" />
-              Status
-            </Button>
-
-            <Button onClick={() => { navigate("/private-communities"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
-              <Shield className="h-4 w-4 mr-2" />
-              Private Communities
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full relative">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Messages & More
+                  {directUnread > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    >
+                      {directUnread > 9 ? "9+" : directUnread}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-56">
+                <DropdownMenuItem onClick={() => { navigate("/messages"); setIsMobileMenuOpen(false); }} className="cursor-pointer">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  <span>Direct Messages</span>
+                  {directUnread > 0 && (
+                    <Badge variant="destructive" className="ml-auto">
+                      {directUnread > 9 ? "9+" : directUnread}
+                    </Badge>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { navigate("/status"); setIsMobileMenuOpen(false); }} className="cursor-pointer">
+                  <Clock className="h-4 w-4 mr-2" />
+                  <span>Status</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { navigate("/private-communities"); setIsMobileMenuOpen(false); }} className="cursor-pointer">
+                  <Shield className="h-4 w-4 mr-2" />
+                  <span>Private Communities</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">
               {t('nav.chat')}
