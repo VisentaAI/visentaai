@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import usFlag from "@/assets/flags/us.png";
@@ -131,6 +131,10 @@ const Navbar = () => {
             )}
           </Button>
 
+          <Button variant="ghost" size="icon" onClick={() => navigate("/private-communities")} title="Private Communities">
+            <Shield className="h-5 w-5" />
+          </Button>
+
           <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
             {t('nav.chat')}
           </Button>
@@ -198,6 +202,11 @@ const Navbar = () => {
                   {directUnread > 9 ? "9+" : directUnread}
                 </Badge>
               )}
+            </Button>
+
+            <Button onClick={() => { navigate("/private-communities"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+              <Shield className="h-4 w-4 mr-2" />
+              Private Communities
             </Button>
 
             <Button onClick={() => navigate("/chat")} className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">
