@@ -1,6 +1,41 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Language = 'en' | 'id';
+type Language = 'en' | 'id' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'br' | 'ru' | 'cn' | 'jp' | 'kr' | 'sa' | 'in' | 'nl' | 'pl' | 'tr' | 'vn' | 'th' | 'se' | 'no' | 'dk' | 'fi' | 'gr' | 'cz' | 'hu' | 'ro' | 'ua' | 'il' | 'my' | 'ph' | 'mx';
+
+export const languageNames: Record<Language, string> = {
+  en: 'English',
+  id: 'Bahasa Indonesia',
+  es: 'Español',
+  fr: 'Français',
+  de: 'Deutsch',
+  it: 'Italiano',
+  pt: 'Português',
+  br: 'Português (Brasil)',
+  ru: 'Русский',
+  cn: '中文',
+  jp: '日本語',
+  kr: '한국어',
+  sa: 'العربية',
+  in: 'हिन्दी',
+  nl: 'Nederlands',
+  pl: 'Polski',
+  tr: 'Türkçe',
+  vn: 'Tiếng Việt',
+  th: 'ภาษาไทย',
+  se: 'Svenska',
+  no: 'Norsk',
+  dk: 'Dansk',
+  fi: 'Suomi',
+  gr: 'Ελληνικά',
+  cz: 'Čeština',
+  hu: 'Magyar',
+  ro: 'Română',
+  ua: 'Українська',
+  il: 'עברית',
+  my: 'Bahasa Melayu',
+  ph: 'Filipino',
+  mx: 'Español (México)',
+};
 
 interface LanguageContextType {
   language: Language;
@@ -256,6 +291,156 @@ const translations = {
     'dm.noConversations': 'Belum ada percakapan. Mulai chat baru!',
     'dm.selectConversation': 'Pilih percakapan untuk mulai berkirim pesan',
     'dm.typePlaceholder': 'Ketik pesan...',
+  },
+  es: {
+    'nav.home': 'Inicio', 'nav.features': 'Características', 'nav.about': 'Acerca de', 'nav.testimonials': 'Testimonios', 'nav.chat': 'Chat IA',
+    'hero.badge': 'Plataforma Líder de Aprendizaje con IA', 'hero.title': 'Aprende Más Inteligente con', 'hero.description': 'Plataforma de aprendizaje impulsada por IA que se adapta a tu estilo de aprendizaje.',
+    'hero.cta.start': 'Comenzar Ahora', 'hero.cta.features': 'Explorar Características', 'features.title': 'Características', 'profile': 'Perfil', 'signOut': 'Cerrar Sesión',
+  },
+  mx: {
+    'nav.home': 'Inicio', 'nav.features': 'Características', 'nav.about': 'Acerca de', 'nav.testimonials': 'Testimonios', 'nav.chat': 'Chat IA',
+    'hero.badge': 'Plataforma Líder de Aprendizaje con IA', 'hero.title': 'Aprende Más Inteligente con', 'hero.description': 'Plataforma de aprendizaje impulsada por IA que se adapta a tu estilo de aprendizaje.',
+    'hero.cta.start': 'Comenzar Ahora', 'hero.cta.features': 'Explorar Características', 'features.title': 'Características', 'profile': 'Perfil', 'signOut': 'Cerrar Sesión',
+  },
+  fr: {
+    'nav.home': 'Accueil', 'nav.features': 'Fonctionnalités', 'nav.about': 'À propos', 'nav.testimonials': 'Témoignages', 'nav.chat': 'Chat IA',
+    'hero.badge': 'Plateforme d\'Apprentissage IA de Premier Plan', 'hero.title': 'Apprenez Plus Intelligemment avec', 'hero.description': 'Plateforme d\'apprentissage alimentée par l\'IA qui s\'adapte à votre style d\'apprentissage.',
+    'hero.cta.start': 'Commencer Maintenant', 'hero.cta.features': 'Explorer les Fonctionnalités', 'features.title': 'Fonctionnalités', 'profile': 'Profil', 'signOut': 'Se Déconnecter',
+  },
+  de: {
+    'nav.home': 'Startseite', 'nav.features': 'Funktionen', 'nav.about': 'Über uns', 'nav.testimonials': 'Erfahrungsberichte', 'nav.chat': 'KI-Chat',
+    'hero.badge': 'Führende KI-Lernplattform', 'hero.title': 'Lernen Sie Intelligenter mit', 'hero.description': 'KI-gestützte Lernplattform, die sich Ihrem Lernstil anpasst.',
+    'hero.cta.start': 'Jetzt Starten', 'hero.cta.features': 'Funktionen Erkunden', 'features.title': 'Funktionen', 'profile': 'Profil', 'signOut': 'Abmelden',
+  },
+  it: {
+    'nav.home': 'Home', 'nav.features': 'Caratteristiche', 'nav.about': 'Chi Siamo', 'nav.testimonials': 'Testimonianze', 'nav.chat': 'Chat IA',
+    'hero.badge': 'Piattaforma di Apprendimento IA Leader', 'hero.title': 'Impara in Modo Più Intelligente con', 'hero.description': 'Piattaforma di apprendimento basata sull\'IA che si adatta al tuo stile di apprendimento.',
+    'hero.cta.start': 'Inizia Ora', 'hero.cta.features': 'Esplora le Caratteristiche', 'features.title': 'Caratteristiche', 'profile': 'Profilo', 'signOut': 'Esci',
+  },
+  pt: {
+    'nav.home': 'Início', 'nav.features': 'Recursos', 'nav.about': 'Sobre', 'nav.testimonials': 'Depoimentos', 'nav.chat': 'Chat IA',
+    'hero.badge': 'Plataforma Líder de Aprendizagem com IA', 'hero.title': 'Aprenda de Forma Mais Inteligente com', 'hero.description': 'Plataforma de aprendizagem alimentada por IA que se adapta ao seu estilo de aprendizagem.',
+    'hero.cta.start': 'Começar Agora', 'hero.cta.features': 'Explorar Recursos', 'features.title': 'Recursos', 'profile': 'Perfil', 'signOut': 'Sair',
+  },
+  br: {
+    'nav.home': 'Início', 'nav.features': 'Recursos', 'nav.about': 'Sobre', 'nav.testimonials': 'Depoimentos', 'nav.chat': 'Chat IA',
+    'hero.badge': 'Plataforma Líder de Aprendizagem com IA', 'hero.title': 'Aprenda de Forma Mais Inteligente com', 'hero.description': 'Plataforma de aprendizagem alimentada por IA que se adapta ao seu estilo de aprendizagem.',
+    'hero.cta.start': 'Começar Agora', 'hero.cta.features': 'Explorar Recursos', 'features.title': 'Recursos', 'profile': 'Perfil', 'signOut': 'Sair',
+  },
+  ru: {
+    'nav.home': 'Главная', 'nav.features': 'Функции', 'nav.about': 'О нас', 'nav.testimonials': 'Отзывы', 'nav.chat': 'ИИ Чат',
+    'hero.badge': 'Ведущая Платформа Обучения с ИИ', 'hero.title': 'Учитесь Умнее с', 'hero.description': 'Платформа обучения на основе ИИ, которая адаптируется к вашему стилю обучения.',
+    'hero.cta.start': 'Начать Сейчас', 'hero.cta.features': 'Изучить Функции', 'features.title': 'Функции', 'profile': 'Профиль', 'signOut': 'Выйти',
+  },
+  cn: {
+    'nav.home': '首页', 'nav.features': '功能', 'nav.about': '关于', 'nav.testimonials': '评价', 'nav.chat': 'AI 聊天',
+    'hero.badge': '领先的AI学习平台', 'hero.title': '更智能地学习', 'hero.description': '基于AI的学习平台，适应您的学习风格。',
+    'hero.cta.start': '立即开始', 'hero.cta.features': '探索功能', 'features.title': '功能', 'profile': '个人资料', 'signOut': '退出',
+  },
+  jp: {
+    'nav.home': 'ホーム', 'nav.features': '機能', 'nav.about': '概要', 'nav.testimonials': 'お客様の声', 'nav.chat': 'AIチャット',
+    'hero.badge': '最先端のAI学習プラットフォーム', 'hero.title': 'よりスマートに学ぶ', 'hero.description': 'あなたの学習スタイルに適応するAI駆動の学習プラットフォーム。',
+    'hero.cta.start': '今すぐ始める', 'hero.cta.features': '機能を探索', 'features.title': '機能', 'profile': 'プロフィール', 'signOut': 'ログアウト',
+  },
+  kr: {
+    'nav.home': '홈', 'nav.features': '기능', 'nav.about': '소개', 'nav.testimonials': '후기', 'nav.chat': 'AI 채팅',
+    'hero.badge': '선도적인 AI 학습 플랫폼', 'hero.title': '더 스마트하게 학습하기', 'hero.description': '학습 스타일에 맞춰 조정되는 AI 기반 학습 플랫폼.',
+    'hero.cta.start': '지금 시작', 'hero.cta.features': '기능 탐색', 'features.title': '기능', 'profile': '프로필', 'signOut': '로그아웃',
+  },
+  sa: {
+    'nav.home': 'الرئيسية', 'nav.features': 'الميزات', 'nav.about': 'عن', 'nav.testimonials': 'الشهادات', 'nav.chat': 'دردشة الذكاء الاصطناعي',
+    'hero.badge': 'منصة التعلم الرائدة بالذكاء الاصطناعي', 'hero.title': 'تعلم بذكاء أكبر مع', 'hero.description': 'منصة تعلم مدعومة بالذكاء الاصطناعي تتكيف مع أسلوب تعلمك.',
+    'hero.cta.start': 'ابدأ الآن', 'hero.cta.features': 'استكشف الميزات', 'features.title': 'الميزات', 'profile': 'الملف الشخصي', 'signOut': 'تسجيل الخروج',
+  },
+  in: {
+    'nav.home': 'होम', 'nav.features': 'विशेषताएं', 'nav.about': 'के बारे में', 'nav.testimonials': 'प्रशंसापत्र', 'nav.chat': 'एआई चैट',
+    'hero.badge': 'अग्रणी एआई शिक्षण मंच', 'hero.title': 'स्मार्ट तरीके से सीखें', 'hero.description': 'एआई-संचालित शिक्षण मंच जो आपकी सीखने की शैली के अनुकूल है।',
+    'hero.cta.start': 'अभी शुरू करें', 'hero.cta.features': 'विशेषताएं देखें', 'features.title': 'विशेषताएं', 'profile': 'प्रोफाइल', 'signOut': 'साइन आउट',
+  },
+  nl: {
+    'nav.home': 'Home', 'nav.features': 'Functies', 'nav.about': 'Over', 'nav.testimonials': 'Getuigenissen', 'nav.chat': 'AI Chat',
+    'hero.badge': 'Leidend AI-leerplatform', 'hero.title': 'Leer Slimmer met', 'hero.description': 'AI-aangedreven leerplatform dat zich aanpast aan jouw leerstijl.',
+    'hero.cta.start': 'Nu Beginnen', 'hero.cta.features': 'Functies Verkennen', 'features.title': 'Functies', 'profile': 'Profiel', 'signOut': 'Uitloggen',
+  },
+  pl: {
+    'nav.home': 'Strona główna', 'nav.features': 'Funkcje', 'nav.about': 'O nas', 'nav.testimonials': 'Opinie', 'nav.chat': 'Czat AI',
+    'hero.badge': 'Wiodąca Platforma Nauki AI', 'hero.title': 'Ucz się Mądrzej z', 'hero.description': 'Platforma edukacyjna oparta na AI, która dostosowuje się do Twojego stylu nauki.',
+    'hero.cta.start': 'Zacznij Teraz', 'hero.cta.features': 'Poznaj Funkcje', 'features.title': 'Funkcje', 'profile': 'Profil', 'signOut': 'Wyloguj',
+  },
+  tr: {
+    'nav.home': 'Ana Sayfa', 'nav.features': 'Özellikler', 'nav.about': 'Hakkında', 'nav.testimonials': 'Referanslar', 'nav.chat': 'Yapay Zeka Sohbeti',
+    'hero.badge': 'Önde Gelen Yapay Zeka Öğrenme Platformu', 'hero.title': 'Daha Akıllıca Öğren', 'hero.description': 'Öğrenme tarzınıza uyum sağlayan yapay zeka destekli öğrenme platformu.',
+    'hero.cta.start': 'Şimdi Başla', 'hero.cta.features': 'Özellikleri Keşfet', 'features.title': 'Özellikler', 'profile': 'Profil', 'signOut': 'Çıkış Yap',
+  },
+  vn: {
+    'nav.home': 'Trang chủ', 'nav.features': 'Tính năng', 'nav.about': 'Giới thiệu', 'nav.testimonials': 'Đánh giá', 'nav.chat': 'Trò chuyện AI',
+    'hero.badge': 'Nền tảng Học tập AI Hàng đầu', 'hero.title': 'Học Thông minh hơn với', 'hero.description': 'Nền tảng học tập được hỗ trợ bởi AI thích ứng với phong cách học tập của bạn.',
+    'hero.cta.start': 'Bắt đầu Ngay', 'hero.cta.features': 'Khám phá Tính năng', 'features.title': 'Tính năng', 'profile': 'Hồ sơ', 'signOut': 'Đăng xuất',
+  },
+  th: {
+    'nav.home': 'หน้าหลัก', 'nav.features': 'คุณสมบัติ', 'nav.about': 'เกี่ยวกับ', 'nav.testimonials': 'คำรับรอง', 'nav.chat': 'แชท AI',
+    'hero.badge': 'แพลตฟอร์มการเรียนรู้ AI ชั้นนำ', 'hero.title': 'เรียนรู้อย่างชาญฉลาดกับ', 'hero.description': 'แพลตฟอร์มการเรียนรู้ที่ขับเคลื่อนด้วย AI ที่ปรับให้เข้ากับรูปแบบการเรียนรู้ของคุณ',
+    'hero.cta.start': 'เริ่มตอนนี้', 'hero.cta.features': 'สำรวจคุณสมบัติ', 'features.title': 'คุณสมบัติ', 'profile': 'โปรไฟล์', 'signOut': 'ออกจากระบบ',
+  },
+  se: {
+    'nav.home': 'Hem', 'nav.features': 'Funktioner', 'nav.about': 'Om', 'nav.testimonials': 'Omdömen', 'nav.chat': 'AI-chatt',
+    'hero.badge': 'Ledande AI-inlärningsplattform', 'hero.title': 'Lär dig Smartare med', 'hero.description': 'AI-driven inlärningsplattform som anpassar sig till din inlärningsstil.',
+    'hero.cta.start': 'Börja Nu', 'hero.cta.features': 'Utforska Funktioner', 'features.title': 'Funktioner', 'profile': 'Profil', 'signOut': 'Logga ut',
+  },
+  no: {
+    'nav.home': 'Hjem', 'nav.features': 'Funksjoner', 'nav.about': 'Om', 'nav.testimonials': 'Anmeldelser', 'nav.chat': 'AI-chat',
+    'hero.badge': 'Ledende AI-læringsplattform', 'hero.title': 'Lær Smartere med', 'hero.description': 'AI-drevet læringsplattform som tilpasser seg din læringsstil.',
+    'hero.cta.start': 'Begynn Nå', 'hero.cta.features': 'Utforsk Funksjoner', 'features.title': 'Funksjoner', 'profile': 'Profil', 'signOut': 'Logg ut',
+  },
+  dk: {
+    'nav.home': 'Hjem', 'nav.features': 'Funktioner', 'nav.about': 'Om', 'nav.testimonials': 'Anmeldelser', 'nav.chat': 'AI-chat',
+    'hero.badge': 'Førende AI-læringsplatform', 'hero.title': 'Lær Smartere med', 'hero.description': 'AI-drevet læringsplatform, der tilpasser sig din læringsstil.',
+    'hero.cta.start': 'Begynd Nu', 'hero.cta.features': 'Udforsk Funktioner', 'features.title': 'Funktioner', 'profile': 'Profil', 'signOut': 'Log ud',
+  },
+  fi: {
+    'nav.home': 'Etusivu', 'nav.features': 'Ominaisuudet', 'nav.about': 'Tietoa', 'nav.testimonials': 'Arvostelut', 'nav.chat': 'AI-chatti',
+    'hero.badge': 'Johtava tekoälyoppimisalusta', 'hero.title': 'Opi Älykkäämmin', 'hero.description': 'Tekoälypohjainen oppimisalusta, joka mukautuu oppimistyyliisi.',
+    'hero.cta.start': 'Aloita Nyt', 'hero.cta.features': 'Tutustu Ominaisuuksiin', 'features.title': 'Ominaisuudet', 'profile': 'Profiili', 'signOut': 'Kirjaudu ulos',
+  },
+  gr: {
+    'nav.home': 'Αρχική', 'nav.features': 'Χαρακτηριστικά', 'nav.about': 'Σχετικά', 'nav.testimonials': 'Μαρτυρίες', 'nav.chat': 'Συνομιλία AI',
+    'hero.badge': 'Κορυφαία Πλατφόρμα Μάθησης AI', 'hero.title': 'Μάθετε Εξυπνότερα με', 'hero.description': 'Πλατφόρμα μάθησης με τεχνητή νοημοσύνη που προσαρμόζεται στο στυλ μάθησής σας.',
+    'hero.cta.start': 'Ξεκινήστε Τώρα', 'hero.cta.features': 'Εξερευνήστε Χαρακτηριστικά', 'features.title': 'Χαρακτηριστικά', 'profile': 'Προφίλ', 'signOut': 'Αποσύνδεση',
+  },
+  cz: {
+    'nav.home': 'Domů', 'nav.features': 'Funkce', 'nav.about': 'O nás', 'nav.testimonials': 'Recenze', 'nav.chat': 'AI chat',
+    'hero.badge': 'Vedoucí platforma AI učení', 'hero.title': 'Učte se Chytřeji s', 'hero.description': 'Platforma učení poháněná umělou inteligencí, která se přizpůsobuje vašemu stylu učení.',
+    'hero.cta.start': 'Začít Nyní', 'hero.cta.features': 'Prozkoumat Funkce', 'features.title': 'Funkce', 'profile': 'Profil', 'signOut': 'Odhlásit se',
+  },
+  hu: {
+    'nav.home': 'Kezdőlap', 'nav.features': 'Funkciók', 'nav.about': 'Rólunk', 'nav.testimonials': 'Vélemények', 'nav.chat': 'AI csevegés',
+    'hero.badge': 'Vezető AI tanulási platform', 'hero.title': 'Tanulj Okosabban', 'hero.description': 'AI-alapú tanulási platform, amely alkalmazkodik a tanulási stílusodhoz.',
+    'hero.cta.start': 'Kezdj Hozzá Most', 'hero.cta.features': 'Funkciók Felfedezése', 'features.title': 'Funkciók', 'profile': 'Profil', 'signOut': 'Kijelentkezés',
+  },
+  ro: {
+    'nav.home': 'Acasă', 'nav.features': 'Caracteristici', 'nav.about': 'Despre', 'nav.testimonials': 'Mărturii', 'nav.chat': 'Chat AI',
+    'hero.badge': 'Platformă Lider de Învățare AI', 'hero.title': 'Învață Mai Inteligent cu', 'hero.description': 'Platformă de învățare alimentată de AI care se adaptează stilului tău de învățare.',
+    'hero.cta.start': 'Începe Acum', 'hero.cta.features': 'Explorează Caracteristicile', 'features.title': 'Caracteristici', 'profile': 'Profil', 'signOut': 'Deconectare',
+  },
+  ua: {
+    'nav.home': 'Головна', 'nav.features': 'Функції', 'nav.about': 'Про нас', 'nav.testimonials': 'Відгуки', 'nav.chat': 'AI чат',
+    'hero.badge': 'Провідна платформа навчання з ШІ', 'hero.title': 'Вчіться Розумніше з', 'hero.description': 'Платформа навчання на основі ШІ, яка адаптується до вашого стилю навчання.',
+    'hero.cta.start': 'Почати Зараз', 'hero.cta.features': 'Дослідити Функції', 'features.title': 'Функції', 'profile': 'Профіль', 'signOut': 'Вийти',
+  },
+  il: {
+    'nav.home': 'בית', 'nav.features': 'תכונות', 'nav.about': 'אודות', 'nav.testimonials': 'המלצות', 'nav.chat': 'צ\'אט AI',
+    'hero.badge': 'פלטפורמת למידה מובילה בבינה מלאכותית', 'hero.title': 'למד בצורה חכמה יותר עם', 'hero.description': 'פלטפורמת למידה מונעת בינה מלאכותית המתאימה את עצמה לסגנון הלמידה שלך.',
+    'hero.cta.start': 'התחל עכשיו', 'hero.cta.features': 'חקור תכונות', 'features.title': 'תכונות', 'profile': 'פרופיל', 'signOut': 'התנתק',
+  },
+  my: {
+    'nav.home': 'Laman Utama', 'nav.features': 'Ciri-ciri', 'nav.about': 'Tentang', 'nav.testimonials': 'Testimoni', 'nav.chat': 'Sembang AI',
+    'hero.badge': 'Platform Pembelajaran AI Terkemuka', 'hero.title': 'Belajar Lebih Bijak dengan', 'hero.description': 'Platform pembelajaran berkuasa AI yang menyesuaikan dengan gaya pembelajaran anda.',
+    'hero.cta.start': 'Mula Sekarang', 'hero.cta.features': 'Terokai Ciri-ciri', 'features.title': 'Ciri-ciri', 'profile': 'Profil', 'signOut': 'Log Keluar',
+  },
+  ph: {
+    'nav.home': 'Home', 'nav.features': 'Mga Feature', 'nav.about': 'Tungkol', 'nav.testimonials': 'Mga Testimonial', 'nav.chat': 'AI Chat',
+    'hero.badge': 'Nangunguna na AI Learning Platform', 'hero.title': 'Mag-aral nang Mas Matalino gamit ang', 'hero.description': 'AI-powered na learning platform na umaangkop sa iyong estilo ng pag-aaral.',
+    'hero.cta.start': 'Magsimula Ngayon', 'hero.cta.features': 'I-explore ang Mga Feature', 'features.title': 'Mga Feature', 'profile': 'Profile', 'signOut': 'Mag-sign Out',
   },
 };
 

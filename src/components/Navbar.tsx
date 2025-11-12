@@ -1,32 +1,81 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useLanguage } from "@/contexts/LanguageContext";
-import usFlag from "@/assets/flags/us.png";
-import idFlag from "@/assets/flags/id.png";
+import { useLanguage, languageNames } from "@/contexts/LanguageContext";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import logo from "@/assets/logo.png";
 import logoWhite from "@/assets/logo-white.png";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { Badge } from "@/components/ui/badge";
+
+// Import all flags
+import usFlag from "@/assets/flags/us.png";
+import idFlag from "@/assets/flags/id.png";
+import esFlag from "@/assets/flags/es.png";
+import frFlag from "@/assets/flags/fr.png";
+import deFlag from "@/assets/flags/de.png";
+import itFlag from "@/assets/flags/it.png";
+import ptFlag from "@/assets/flags/pt.png";
+import brFlag from "@/assets/flags/br.png";
+import ruFlag from "@/assets/flags/ru.png";
+import cnFlag from "@/assets/flags/cn.png";
+import jpFlag from "@/assets/flags/jp.png";
+import krFlag from "@/assets/flags/kr.png";
+import saFlag from "@/assets/flags/sa.png";
+import inFlag from "@/assets/flags/in.png";
+import nlFlag from "@/assets/flags/nl.png";
+import plFlag from "@/assets/flags/pl.png";
+import trFlag from "@/assets/flags/tr.png";
+import vnFlag from "@/assets/flags/vn.png";
+import thFlag from "@/assets/flags/th.png";
+import seFlag from "@/assets/flags/se.png";
+import noFlag from "@/assets/flags/no.png";
+import dkFlag from "@/assets/flags/dk.png";
+import fiFlag from "@/assets/flags/fi.png";
+import grFlag from "@/assets/flags/gr.png";
+import czFlag from "@/assets/flags/cz.png";
+import huFlag from "@/assets/flags/hu.png";
+import roFlag from "@/assets/flags/ro.png";
+import uaFlag from "@/assets/flags/ua.png";
+import ilFlag from "@/assets/flags/il.png";
+import myFlag from "@/assets/flags/my.png";
+import phFlag from "@/assets/flags/ph.png";
+import mxFlag from "@/assets/flags/mx.png";
+
+const flagMap: Record<string, string> = {
+  en: usFlag, id: idFlag, es: esFlag, fr: frFlag, de: deFlag, it: itFlag,
+  pt: ptFlag, br: brFlag, ru: ruFlag, cn: cnFlag, jp: jpFlag, kr: krFlag,
+  sa: saFlag, in: inFlag, nl: nlFlag, pl: plFlag, tr: trFlag, vn: vnFlag,
+  th: thFlag, se: seFlag, no: noFlag, dk: dkFlag, fi: fiFlag, gr: grFlag,
+  cz: czFlag, hu: huFlag, ro: roFlag, ua: uaFlag, il: ilFlag, my: myFlag,
+  ph: phFlag, mx: mxFlag,
+};
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState("");
   const isHomePage = location.pathname === "/";
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const { communityUnread, directUnread } = useUnreadCounts();
   
   const currentLogo = theme === 'dark' ? logoWhite : logo;
+
+  const filteredLanguages = Object.entries(languageNames).filter(([code, name]) => 
+    name.toLowerCase().includes(languageSearch.toLowerCase()) ||
+    code.toLowerCase().includes(languageSearch.toLowerCase())
+  );
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -81,21 +130,39 @@ const Navbar = () => {
             {t('nav.testimonials')}
           </button>
           
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(open) => !open && setLanguageSearch("")}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Languages className="h-5 w-5" />
+                <img src={flagMap[language]} alt={languageNames[language]} className="h-5 w-5 rounded" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setLanguage('en')} className="gap-2">
-                <img src={usFlag} alt="English" className="h-5 w-5 rounded" />
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLanguage('id')} className="gap-2">
-                <img src={idFlag} alt="Bahasa Indonesia" className="h-5 w-5 rounded" />
-                Bahasa Indonesia
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-64 bg-background/95 backdrop-blur-sm">
+              <div className="p-2 border-b border-border">
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search languages..."
+                    value={languageSearch}
+                    onChange={(e) => setLanguageSearch(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              <ScrollArea className="h-[300px]">
+                {filteredLanguages.map(([code, name]) => (
+                  <DropdownMenuItem 
+                    key={code}
+                    onClick={() => {
+                      setLanguage(code as any);
+                      setLanguageSearch("");
+                    }} 
+                    className="gap-2 cursor-pointer"
+                  >
+                    <img src={flagMap[code]} alt={name} className="h-5 w-5 rounded" />
+                    <span>{name}</span>
+                  </DropdownMenuItem>
+                ))}
+              </ScrollArea>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -162,12 +229,44 @@ const Navbar = () => {
               {t('nav.testimonials')}
             </button>
             
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" onClick={() => setLanguage(language === 'en' ? 'id' : 'en')} className="flex-1">
-                <img src={language === 'en' ? usFlag : idFlag} alt={language === 'en' ? 'English' : 'Bahasa Indonesia'} className="h-4 w-4 mr-2 rounded" />
-                {language === 'en' ? 'EN' : 'ID'}
-              </Button>
-              <Button variant="outline" size="sm" onClick={toggleTheme} className="flex-1">
+            <div className="space-y-2">
+              <DropdownMenu onOpenChange={(open) => !open && setLanguageSearch("")}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full">
+                    <img src={flagMap[language]} alt={languageNames[language]} className="h-4 w-4 mr-2 rounded" />
+                    {languageNames[language]}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-64 bg-background/95 backdrop-blur-sm">
+                  <div className="p-2 border-b border-border">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search languages..."
+                        value={languageSearch}
+                        onChange={(e) => setLanguageSearch(e.target.value)}
+                        className="pl-8"
+                      />
+                    </div>
+                  </div>
+                  <ScrollArea className="h-[300px]">
+                    {filteredLanguages.map(([code, name]) => (
+                      <DropdownMenuItem 
+                        key={code}
+                        onClick={() => {
+                          setLanguage(code as any);
+                          setLanguageSearch("");
+                        }} 
+                        className="gap-2 cursor-pointer"
+                      >
+                        <img src={flagMap[code]} alt={name} className="h-5 w-5 rounded" />
+                        <span>{name}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </ScrollArea>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="outline" size="sm" onClick={toggleTheme} className="w-full">
                 {theme === 'dark' ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
                 {theme === 'dark' ? 'Light' : 'Dark'}
               </Button>
