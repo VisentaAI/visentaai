@@ -17,6 +17,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { MessageReactions } from "@/components/MessageReactions";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { z } from "zod";
 
 interface CommunityMessage {
@@ -55,6 +56,7 @@ const Community = () => {
   const { t } = useLanguage();
   const { onlineUserIds, activeUsers } = usePresence();
   const { markCommunityAsRead } = useUnreadCounts();
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState<CommunityMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -389,17 +391,18 @@ const Community = () => {
         <div className="flex-1 flex flex-col relative z-10">
           <div className="container mx-auto px-4 py-24">
             <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
                 <Button
                   variant="ghost"
                   onClick={() => navigate("/")}
+                  className="w-full sm:w-auto"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Home
                 </Button>
                 <Button
                   onClick={() => navigate("/private-communities")}
-                  className="gap-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg transition-all hover:scale-105 shadow-md"
+                  className="gap-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg transition-all hover:scale-105 shadow-md w-full sm:w-auto"
                 >
                   <Lock className="h-4 w-4" />
                   Private Communities
@@ -407,39 +410,46 @@ const Community = () => {
               </div>
               <Card className="h-[calc(100vh-16rem)] border-2 border-primary/20 shadow-lg glass">
                 <CardHeader className="border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl gradient-text flex items-center gap-2">
-                      <Users className="h-6 w-6" />
-                      {t('community.title')}
-                    </CardTitle>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
-                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="font-medium">{activeUsers} {t('community.activeUsers')}</span>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl sm:text-2xl gradient-text flex items-center gap-2">
+                        <Users className="h-5 w-5 sm:h-6 sm:w-6" />
+                        {t('community.title')}
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground bg-background/50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border">
+                          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                          <span className="font-medium hidden sm:inline">{activeUsers} {t('community.activeUsers')}</span>
+                          <span className="font-medium sm:hidden">{activeUsers}</span>
+                        </div>
+                        <SidebarTrigger>
+                          <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+                            <PanelRightOpen className="h-4 w-4" />
+                          </Button>
+                        </SidebarTrigger>
                       </div>
-                      <div className="relative flex-1 max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search messages..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 h-9"
-                        />
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="icon"
-                        onClick={handleClearAllMessages}
-                        className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                      <SidebarTrigger>
-                        <Button variant="outline" size="icon">
-                          <PanelRightOpen className="h-4 w-4" />
-                        </Button>
-                      </SidebarTrigger>
                     </div>
+                    {!isMobile && (
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1 max-w-md">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search messages..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 h-9"
+                          />
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={handleClearAllMessages}
+                          className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive h-9 w-9"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
             <CardContent className="p-0 flex flex-col h-[calc(100%-5rem)]">
