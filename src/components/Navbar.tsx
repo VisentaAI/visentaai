@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search, Clock } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage, languageNames } from "@/contexts/LanguageContext";
 import { 
@@ -198,6 +198,10 @@ const Navbar = () => {
             )}
           </Button>
 
+          <Button variant="ghost" size="icon" onClick={() => navigate("/status")}>
+            <Clock className="h-5 w-5" />
+          </Button>
+
           <Button variant="ghost" size="icon" onClick={() => navigate("/private-communities")} title="Private Communities">
             <Shield className="h-5 w-5" />
           </Button>
@@ -301,6 +305,11 @@ const Navbar = () => {
                   {directUnread > 9 ? "9+" : directUnread}
                 </Badge>
               )}
+            </Button>
+
+            <Button onClick={() => { navigate("/status"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
+              <Clock className="h-4 w-4 mr-2" />
+              Status
             </Button>
 
             <Button onClick={() => { navigate("/private-communities"); setIsMobileMenuOpen(false); }} variant="outline" className="w-full">
