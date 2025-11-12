@@ -505,8 +505,14 @@ export default function DirectMessages() {
   const groupedMessages = groupMessagesByDate(filteredMessages);
 
   return (
-    <div className="min-h-screen bg-background" style={{ background: 'var(--gradient-hero)' }}>
-      <div className="container max-w-7xl mx-auto h-screen flex flex-col p-4">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 -z-10" />
+      <div className="absolute inset-0 ai-grid opacity-20 -z-10" />
+      <div className="absolute top-20 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse -z-10" />
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse delay-1000 -z-10" />
+      
+      <div className="container max-w-7xl mx-auto h-screen flex flex-col p-4 relative z-10">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/")}>

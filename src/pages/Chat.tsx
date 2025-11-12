@@ -351,9 +351,15 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden" style={{ background: 'var(--gradient-hero)' }}>
+    <div className="flex h-screen relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 -z-10" />
+      <div className="absolute inset-0 ai-grid opacity-20 -z-10" />
+      <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse -z-10" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse delay-1000 -z-10" />
+      
       {/* Sidebar */}
-      <div className="w-64 border-r bg-muted/30 flex flex-col hidden md:flex">
+      <div className="w-64 border-r glass flex flex-col hidden md:flex relative z-10">
         <div className="p-4 border-b">
           <div className="flex items-center gap-2 mb-4">
             <Bot className="h-6 w-6 text-primary" />
@@ -422,8 +428,8 @@ const Chat = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-primary/5 shrink-0">
+      <div className="flex-1 flex flex-col min-w-0 relative z-10">
+        <div className="p-4 border-b glass shrink-0">
           <div className="flex items-center justify-between gap-4">
             <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="shrink-0">
               <ArrowLeft className="h-4 w-4 mr-2" />

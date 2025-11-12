@@ -379,8 +379,14 @@ const Community = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 w-full flex">
-        <div className="flex-1 flex flex-col">
+      <div className="min-h-screen relative overflow-hidden w-full flex">
+        {/* Animated background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 -z-10" />
+        <div className="absolute inset-0 ai-grid opacity-20 -z-10" />
+        <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse -z-10" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse delay-1000 -z-10" />
+        
+        <div className="flex-1 flex flex-col relative z-10">
           <div className="container mx-auto px-4 py-24">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-4">
@@ -392,9 +398,8 @@ const Community = () => {
                   Back to Home
                 </Button>
                 <Button
-                  variant="outline"
                   onClick={() => navigate("/private-communities")}
-                  className="gap-2 glass hover:bg-primary/10"
+                  className="gap-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg transition-all hover:scale-105 shadow-md"
                 >
                   <Lock className="h-4 w-4" />
                   Private Communities
