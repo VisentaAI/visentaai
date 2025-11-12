@@ -10,9 +10,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Send, ArrowLeft, Plus, Search as SearchIcon, Smile, Trash2, Pencil, X, Check } from "lucide-react";
+import { Send, ArrowLeft, Plus, Search as SearchIcon, Smile, Trash2, Pencil, X, Check, ChevronDown, Check as CheckIcon, CheckCheck } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from "date-fns";
 import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
@@ -83,6 +83,7 @@ export default function DirectMessages() {
   const [userDisplayName, setUserDisplayName] = useState("");
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesChannelRef = useRef<any>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,10 +131,55 @@ export default function DirectMessages() {
   }, [activeConversation]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    scrollToBottom(false);
   }, [messages]);
+
+  const scrollToBottom = (smooth = true) => {
+    if (scrollRef.current) {
+      const scrollElement = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]");
+      if (scrollElement) {
+        scrollElement.scrollTo({
+          top: scrollElement.scrollHeight,
+          behavior: smooth ? 'smooth' : 'auto'
+        });
+      }
+    }
+  };
+
+  const handleScroll = (e: any) => {
+    const element = e.target;
+    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
+  };
+
+  const formatMessageDate = (date: Date) => {
+    if (isToday(date)) {
+      return format(date, 'HH:mm');
+    } else if (isYesterday(date)) {
+      return `Yesterday ${format(date, 'HH:mm')}`;
+    } else {
+      return format(date, 'MMM d, HH:mm');
+    }
+  };
+
+  const groupMessagesByDate = (messages: Message[]) => {
+    const groups: { date: string; messages: Message[] }[] = [];
+    let currentGroup: { date: string; messages: Message[] } | null = null;
+
+    messages.forEach((message) => {
+      const messageDate = new Date(message.created_at);
+      const dateStr = format(messageDate, 'yyyy-MM-dd');
+
+      if (!currentGroup || currentGroup.date !== dateStr) {
+        currentGroup = { date: dateStr, messages: [message] };
+        groups.push(currentGroup);
+      } else {
+        currentGroup.messages.push(message);
+      }
+    });
+
+    return groups;
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -456,8 +502,10 @@ export default function DirectMessages() {
     );
   }
 
+  const groupedMessages = groupMessagesByDate(filteredMessages);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ background: 'var(--gradient-hero)' }}>
       <div className="container max-w-7xl mx-auto h-screen flex flex-col p-4">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -523,7 +571,7 @@ export default function DirectMessages() {
         </div>
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 overflow-hidden">
-          <Card className="md:col-span-1 flex flex-col border-2 border-primary/20 shadow-lg bg-gradient-to-b from-background to-muted/20">
+          <Card className="md:col-span-1 flex flex-col border border-border/50 shadow-2xl backdrop-blur-sm bg-card/95 overflow-hidden">
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-2">
                  {conversations.map((conv) => {
@@ -535,38 +583,35 @@ export default function DirectMessages() {
                      : "A";
                    const isOnline = onlineUserIds.has(conv.other_user?.id || "");
                    
-                   return (
-                      <div className="relative group">
+                    return (
+                      <div key={conv.id} className="relative group">
                         <button
-                          key={conv.id}
                           onClick={() => setActiveConversation(conv.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
+                          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
                             activeConversation === conv.id
-                              ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md"
-                              : "hover:bg-muted hover:shadow-sm"
+                              ? "bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-lg scale-[1.02]"
+                              : "hover:bg-muted/50 hover:shadow-md"
                           }`}
                         >
                        <div className="relative">
-                         <Avatar className="h-12 w-12 flex-shrink-0">
+                         <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-offset-2 ring-offset-background ring-primary/20">
                            <AvatarImage src={displayAvatar} />
-                           <AvatarFallback>{avatarFallback}</AvatarFallback>
+                           <AvatarFallback className="text-lg font-semibold">{avatarFallback}</AvatarFallback>
                          </Avatar>
-                         <span 
-                           className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
-                             isOnline ? 'bg-green-500' : 'bg-muted'
-                           }`}
-                         />
+                         {isOnline && (
+                           <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-background bg-green-500 animate-pulse" />
+                         )}
                        </div>
                        <div className="flex-1 text-left min-w-0">
                          <div className="flex items-center justify-between mb-1">
-                           <p className="font-medium truncate">{displayName}</p>
+                           <p className="font-semibold truncate text-base">{displayName}</p>
                            {conv.unread_count! > 0 && (
-                             <span className="bg-destructive text-destructive-foreground text-xs rounded-full px-2 py-0.5">
+                             <span className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-xs font-bold rounded-full px-2.5 py-1 min-w-[24px] text-center shadow-md animate-pulse">
                                {conv.unread_count}
                              </span>
                            )}
                          </div>
-                         <p className="text-sm text-muted-foreground truncate">{conv.last_message || "No messages yet"}</p>
+                         <p className="text-sm text-muted-foreground truncate opacity-80">{conv.last_message || "Start a conversation..."}</p>
                         </div>
                         </button>
                         <Button
@@ -592,11 +637,11 @@ export default function DirectMessages() {
             </ScrollArea>
           </Card>
 
-          <Card className="md:col-span-2 flex flex-col border-2 border-primary/20 shadow-lg">
+          <Card className="md:col-span-2 flex flex-col border border-border/50 shadow-2xl backdrop-blur-sm bg-card/95 overflow-hidden">
             {activeConversation ? (
               <>
-                 <div className="border-b border-border p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
-                   <div className="flex items-center gap-3">
+                 <div className="border-b border-border/50 p-5 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 backdrop-blur-sm">
+                   <div className="flex items-center gap-4">
                      <button
                        onClick={() => {
                          if (activeConversationData?.other_user?.id) {
@@ -604,15 +649,15 @@ export default function DirectMessages() {
                            setShowProfileCard(true);
                          }
                        }}
-                       className="relative hover:opacity-80 transition-opacity cursor-pointer"
+                       className="relative hover:scale-110 transition-transform duration-200 cursor-pointer group"
                      >
-                       <Avatar className="h-10 w-10">
+                       <Avatar className="h-12 w-12 ring-2 ring-offset-2 ring-offset-background ring-primary/30 group-hover:ring-primary/60 transition-all">
                          <AvatarImage src={
                            (activeConversationData?.other_user?.is_public ?? true)
                              ? (activeConversationData?.other_user?.avatar_url || "")
                              : ""
                          } />
-                         <AvatarFallback>
+                         <AvatarFallback className="text-lg font-bold">
                            {(activeConversationData?.other_user?.is_public ?? true)
                              ? (activeConversationData?.other_user?.full_name?.[0]?.toUpperCase() ||
                                 activeConversationData?.other_user?.email?.[0]?.toUpperCase() ||
@@ -620,19 +665,25 @@ export default function DirectMessages() {
                              : "A"}
                          </AvatarFallback>
                        </Avatar>
-                       <span 
-                         className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
-                           onlineUserIds.has(activeConversationData?.other_user?.id || "") ? 'bg-green-500' : 'bg-muted'
-                         }`}
-                       />
+                       {onlineUserIds.has(activeConversationData?.other_user?.id || "") && (
+                         <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-background bg-green-500 animate-pulse shadow-lg" />
+                       )}
                      </button>
-                     <div>
-                       <p className="font-medium text-foreground">
+                     <div className="flex-1 min-w-0">
+                       <p className="font-bold text-lg text-foreground truncate">
                          {(activeConversationData?.other_user?.is_public ?? true)
                            ? (activeConversationData?.other_user?.full_name ||
                               activeConversationData?.other_user?.email ||
                               "Anonymous")
                            : "Anonymous"}
+                       </p>
+                       <p className="text-sm text-muted-foreground">
+                         {onlineUserIds.has(activeConversationData?.other_user?.id || "") ? (
+                           <span className="text-green-500 font-medium flex items-center gap-1">
+                             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                             Active now
+                           </span>
+                         ) : 'Offline'}
                        </p>
                       </div>
                       <div className="flex-1">
@@ -649,100 +700,161 @@ export default function DirectMessages() {
                     </div>
                   </div>
 
-                 <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-                   <div className="space-y-4">
-                     {filteredMessages.map((message) => {
-                       const isOwn = message.sender_id === currentUserId;
+                 <ScrollArea className="flex-1 p-6 relative" ref={scrollRef} onScrollCapture={handleScroll}>
+                   <div className="space-y-6">
+                     {groupedMessages.map((group) => {
+                       const groupDate = new Date(group.date);
+                       const dateLabel = isToday(groupDate) 
+                         ? "Today" 
+                         : isYesterday(groupDate) 
+                         ? "Yesterday" 
+                         : format(groupDate, 'MMMM d, yyyy');
+
                        return (
-                         <div
-                           key={message.id}
-                           className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}
-                         >
-                           {editingMessageId === message.id && isOwn ? (
-                             <div className="flex items-center gap-2 max-w-[70%] w-full">
-                               <Input
-                                 value={editingContent}
-                                 onChange={(e) => setEditingContent(e.target.value)}
-                                 className="flex-1"
-                                 autoFocus
-                                 onKeyDown={(e) => {
-                                   if (e.key === 'Enter' && !e.shiftKey) {
-                                     e.preventDefault();
-                                     handleEditMessage(message.id);
-                                   } else if (e.key === 'Escape') {
-                                     cancelEditing();
-                                   }
-                                 }}
-                               />
-                               <Button
-                                 variant="ghost"
-                                 size="icon"
-                                 className="h-8 w-8 hover:bg-green-500/10 hover:text-green-500"
-                                 onClick={() => handleEditMessage(message.id)}
-                               >
-                                 <Check className="h-4 w-4" />
-                               </Button>
-                               <Button
-                                 variant="ghost"
-                                 size="icon"
-                                 className="h-8 w-8"
-                                 onClick={cancelEditing}
-                               >
-                                 <X className="h-4 w-4" />
-                               </Button>
+                         <div key={group.date} className="space-y-4">
+                           <div className="flex items-center justify-center">
+                             <div className="bg-muted/60 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium text-muted-foreground shadow-sm">
+                               {dateLabel}
                              </div>
-                           ) : (
-                             <>
-                               <div className="flex items-start gap-2">
-                                 <div
-                                   className={`max-w-[70%] rounded-lg px-4 py-2 shadow-md transition-all hover:shadow-lg ${
-                                     isOwn
-                                       ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border border-primary/50"
-                                       : "bg-gradient-to-br from-muted to-muted/50 text-foreground border border-border/50"
-                                   }`}
-                                 >
-                                   <p className="text-sm break-words">{message.content}</p>
-                                   <p className="text-xs opacity-70 mt-1">
-                                     {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                                     {message.updated_at && message.updated_at !== message.created_at && (
-                                       <span className="italic ml-1">(edited)</span>
-                                     )}
-                                   </p>
+                           </div>
+                           {group.messages.map((message) => {
+                             const isOwn = message.sender_id === currentUserId;
+                             return (
+                               <div
+                                 key={message.id}
+                                 className={`flex flex-col gap-1 ${isOwn ? "items-end" : "items-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                               >
+                               {editingMessageId === message.id && isOwn ? (
+                                 <div className="flex items-center gap-2 max-w-[75%] w-full">
+                                   <Input
+                                     value={editingContent}
+                                     onChange={(e) => setEditingContent(e.target.value)}
+                                     className="flex-1 bg-background/50 backdrop-blur-sm"
+                                     autoFocus
+                                     onKeyDown={(e) => {
+                                       if (e.key === 'Enter' && !e.shiftKey) {
+                                         e.preventDefault();
+                                         handleEditMessage(message.id);
+                                       } else if (e.key === 'Escape') {
+                                         cancelEditing();
+                                       }
+                                     }}
+                                   />
+                                   <Button
+                                     variant="ghost"
+                                     size="icon"
+                                     className="h-9 w-9 hover:bg-green-500/20 hover:text-green-500 transition-colors"
+                                     onClick={() => handleEditMessage(message.id)}
+                                   >
+                                     <Check className="h-4 w-4" />
+                                   </Button>
+                                   <Button
+                                     variant="ghost"
+                                     size="icon"
+                                     className="h-9 w-9 hover:bg-destructive/20 hover:text-destructive transition-colors"
+                                     onClick={cancelEditing}
+                                   >
+                                     <X className="h-4 w-4" />
+                                   </Button>
                                  </div>
-                                 {isOwn && (
-                                   <div className="flex flex-col gap-1">
-                                     <Button
-                                       variant="ghost"
-                                       size="icon"
-                                       className="h-8 w-8 hover:bg-primary/10"
-                                       onClick={() => startEditing(message.id, message.content)}
-                                     >
-                                       <Pencil className="h-4 w-4" />
-                                     </Button>
+                               ) : (
+                                 <>
+                                   <div className="flex items-end gap-2 max-w-[75%] group/message">
+                                     {!isOwn && (
+                                       <Avatar className="h-8 w-8 mb-1 ring-2 ring-border/20">
+                                         <AvatarImage src={
+                                           (activeConversationData?.other_user?.is_public ?? true)
+                                             ? (activeConversationData?.other_user?.avatar_url || "")
+                                             : ""
+                                         } />
+                                         <AvatarFallback className="text-xs">
+                                           {(activeConversationData?.other_user?.is_public ?? true)
+                                             ? (activeConversationData?.other_user?.full_name?.[0]?.toUpperCase() || "U")
+                                             : "A"}
+                                         </AvatarFallback>
+                                       </Avatar>
+                                     )}
+                                     <div className="flex flex-col gap-1 flex-1">
+                                       <div
+                                         className={`rounded-2xl px-4 py-3 shadow-lg transition-all duration-200 hover:shadow-xl ${
+                                           isOwn
+                                             ? "bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground ml-auto"
+                                             : "bg-gradient-to-br from-card to-card/80 text-foreground border border-border/30"
+                                         }`}
+                                       >
+                                         <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">{message.content}</p>
+                                         <div className={`flex items-center gap-2 mt-1.5 text-xs ${isOwn ? 'opacity-80' : 'opacity-60'}`}>
+                                           <span>{formatMessageDate(new Date(message.created_at))}</span>
+                                           {message.updated_at && message.updated_at !== message.created_at && (
+                                             <span className="italic">(edited)</span>
+                                           )}
+                                           {isOwn && (
+                                             <span className="ml-auto">
+                                               {message.read ? (
+                                                 <CheckCheck className="h-3.5 w-3.5 text-blue-400" />
+                                               ) : (
+                                                 <CheckIcon className="h-3.5 w-3.5" />
+                                               )}
+                                             </span>
+                                           )}
+                                         </div>
+                                       </div>
+                                       <MessageReactions 
+                                         messageId={message.id} 
+                                         currentUserId={currentUserId} 
+                                         type="direct"
+                                       />
+                                     </div>
+                                     {isOwn && (
+                                       <Button
+                                         variant="ghost"
+                                         size="icon"
+                                         className="h-8 w-8 opacity-0 group-hover/message:opacity-100 transition-opacity hover:bg-primary/10 mb-1"
+                                         onClick={() => startEditing(message.id, message.content)}
+                                       >
+                                         <Pencil className="h-3.5 w-3.5" />
+                                       </Button>
+                                     )}
                                    </div>
-                                 )}
-                               </div>
-                               <MessageReactions 
-                                 messageId={message.id} 
-                                 currentUserId={currentUserId} 
-                                 type="direct"
-                               />
-                             </>
-                           )}
+                                 </>
+                               )}
+                             </div>
+                           );
+                         })}
                          </div>
                        );
                      })}
                    </div>
+
+                   {showScrollButton && (
+                     <Button
+                       variant="secondary"
+                       size="icon"
+                       className="absolute bottom-4 right-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 h-12 w-12 z-10 animate-in fade-in slide-in-from-bottom-2"
+                       onClick={() => scrollToBottom(true)}
+                     >
+                       <ChevronDown className="h-5 w-5" />
+                     </Button>
+                   )}
                  </ScrollArea>
 
                  {typingUsers.length > 0 && (
-                   <div className="px-4 py-2 text-sm text-muted-foreground italic border-t">
-                     {typingUsers.map(u => u.displayName).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                   <div className="px-6 py-3 text-sm text-muted-foreground border-t border-border/50 bg-muted/30 backdrop-blur-sm">
+                     <div className="flex items-center gap-2">
+                       <div className="flex gap-1">
+                         <span className="h-2 w-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                         <span className="h-2 w-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                         <span className="h-2 w-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                       </div>
+                       <span className="font-medium">
+                         {typingUsers.map(u => u.displayName).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing
+                       </span>
+                     </div>
                    </div>
                  )}
 
-                <form onSubmit={handleSendMessage} className="border-t border-border p-4 bg-gradient-to-r from-background via-muted/20 to-background">
-                  <div className="flex gap-2 items-end">
+                <form onSubmit={handleSendMessage} className="border-t border-border/50 p-5 bg-gradient-to-r from-background/50 via-muted/10 to-background/50 backdrop-blur-sm">
+                  <div className="flex gap-3 items-end">
                     <div className="flex-1 relative">
                       <Input
                         value={newMessage}
@@ -752,25 +864,25 @@ export default function DirectMessages() {
                         }}
                         placeholder={t("dm.typePlaceholder")}
                         disabled={sending}
-                        className="pr-10"
+                        className="pr-12 h-12 rounded-full border-2 focus:ring-2 focus:ring-primary/20 bg-background/50 backdrop-blur-sm transition-all duration-200"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full hover:bg-muted/80 transition-colors"
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                       >
-                        <Smile className="h-4 w-4" />
+                        <Smile className="h-5 w-5 text-muted-foreground" />
                       </Button>
                     </div>
                     <Button 
                       type="submit" 
                       disabled={sending || !newMessage.trim()}
-                      className="h-10 px-6"
+                      className="h-12 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/90 hover:scale-105 disabled:hover:scale-100"
                     >
-                      <Send className="h-4 w-4 mr-2" />
-                      Send
+                      <Send className="h-5 w-5 mr-2" />
+                      <span className="font-semibold">Send</span>
                     </Button>
                   </div>
                   {showEmojiPicker && (
