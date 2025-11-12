@@ -4,8 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Eye } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface Status {
   id: string;
@@ -30,6 +35,15 @@ interface StatusGroup {
   hasUnviewed: boolean;
 }
 
+interface StatusViewer {
+  viewer_id: string;
+  viewed_at: string;
+  profiles: {
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+}
+
 const StatusStories = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -37,6 +51,7 @@ const StatusStories = () => {
   const [myStatuses, setMyStatuses] = useState<Status[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<StatusGroup | null>(null);
   const [currentStatusIndex, setCurrentStatusIndex] = useState(0);
+  const [statusViewers, setStatusViewers] = useState<StatusViewer[]>([]);
 
   useEffect(() => {
     loadUser();
@@ -127,12 +142,45 @@ const StatusStories = () => {
     setStatusGroups(groups);
   };
 
+  const loadStatusViewers = async (statusId: string) => {
+    const { data: views } = await supabase
+      .from("status_views")
+      .select("viewer_id, viewed_at")
+      .eq("status_id", statusId)
+      .order("viewed_at", { ascending: false });
+
+    if (!views || views.length === 0) {
+      setStatusViewers([]);
+      return;
+    }
+
+    const viewerIds = views.map(v => v.viewer_id);
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url")
+      .in("id", viewerIds);
+
+    const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+    
+    const viewersWithProfiles = views.map(view => ({
+      viewer_id: view.viewer_id,
+      viewed_at: view.viewed_at,
+      profiles: profilesMap.get(view.viewer_id) || { full_name: null, avatar_url: null }
+    }));
+
+    setStatusViewers(viewersWithProfiles);
+  };
+
   const handleViewStatus = async (group: StatusGroup, index: number) => {
     setSelectedGroup(group);
     setCurrentStatusIndex(index);
 
-    if (group.user_id !== user?.id) {
-      const status = group.statuses[index];
+    const status = group.statuses[index];
+    
+    if (group.user_id === user?.id) {
+      await loadStatusViewers(status.id);
+    } else {
+      setStatusViewers([]);
       await supabase.from("status_views").insert({
         status_id: status.id,
         viewer_id: user.id,
@@ -140,12 +188,12 @@ const StatusStories = () => {
     }
   };
 
-  const nextStatus = () => {
+  const nextStatus = async () => {
     if (!selectedGroup) return;
     if (currentStatusIndex < selectedGroup.statuses.length - 1) {
       const newIndex = currentStatusIndex + 1;
       setCurrentStatusIndex(newIndex);
-      handleViewStatus(selectedGroup, newIndex);
+      await handleViewStatus(selectedGroup, newIndex);
     } else {
       setSelectedGroup(null);
     }
@@ -227,6 +275,41 @@ const StatusStories = () => {
                     {new Date(selectedGroup.statuses[currentStatusIndex].created_at).toLocaleTimeString()}
                   </p>
                 </div>
+                {selectedGroup.user_id === user?.id && statusViewers.length > 0 && (
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-white hover:bg-white/20 gap-2"
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="text-sm">{statusViewers.length}</span>
+                      </Button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-80 max-h-96 overflow-y-auto">
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold mb-3">Viewed by {statusViewers.length} {statusViewers.length === 1 ? 'person' : 'people'}</h4>
+                        {statusViewers.map((viewer) => (
+                          <div key={viewer.viewer_id} className="flex items-center gap-2 py-2">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={viewer.profiles.avatar_url || undefined} />
+                              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                                {viewer.profiles.full_name?.[0]?.toUpperCase() || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{viewer.profiles.full_name || "Unknown User"}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(viewer.viewed_at).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                )}
               </div>
 
               <div className="absolute top-16 left-4 right-4 flex gap-1 z-10">
