@@ -289,6 +289,42 @@ export type Database = {
         }
         Relationships: []
       }
+      lessons: {
+        Row: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          description: string | null
+          id: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          category?: string
+          content: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       private_communities: {
         Row: {
           created_at: string

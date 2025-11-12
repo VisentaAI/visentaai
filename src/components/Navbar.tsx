@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search, Clock } from "lucide-react";
+import { Menu, X, Moon, Sun, Languages, User, Users, MessageSquare, Shield, Search, Clock, BookOpen } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage, languageNames } from "@/contexts/LanguageContext";
 import { 
@@ -129,6 +129,9 @@ const Navbar = () => {
           <button onClick={() => scrollToSection("testimonials")} className="text-foreground hover:text-primary transition-colors px-3">
             {t('nav.testimonials')}
           </button>
+          <button onClick={() => navigate("/lessons")} className="text-foreground hover:text-primary transition-colors px-3">
+            Lessons
+          </button>
           
           <DropdownMenu onOpenChange={(open) => !open && setLanguageSearch("")}>
             <DropdownMenuTrigger asChild>
@@ -246,6 +249,9 @@ const Navbar = () => {
             </button>
             <button onClick={() => scrollToSection("testimonials")} className="text-left text-foreground hover:text-primary transition-colors">
               {t('nav.testimonials')}
+            </button>
+            <button onClick={() => { navigate("/lessons"); setIsMobileMenuOpen(false); }} className="text-left text-foreground hover:text-primary transition-colors">
+              Lessons
             </button>
             
             <div className="space-y-2">
