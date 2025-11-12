@@ -75,12 +75,17 @@ const Community = () => {
   useEffect(() => {
     const init = async () => {
       await checkAuth();
-      loadMessages();
-      setupRealtimeSubscription();
-      markCommunityAsRead();
     };
     init();
   }, []);
+
+  useEffect(() => {
+    if (currentUserId) {
+      loadMessages();
+      setupRealtimeSubscription();
+      markCommunityAsRead();
+    }
+  }, [currentUserId]);
 
   useEffect(() => {
     loadOnlineUsers();
@@ -94,20 +99,49 @@ const Community = () => {
       // Load user profile for display name
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, email')
+        .select('full_name, email, community_joined_at')
         .eq('id', session.user.id)
         .single();
       
       setUserDisplayName(profile?.full_name || profile?.email || 'You');
+      
+      // Set community_joined_at if this is their first time in community chat
+      if (!profile?.community_joined_at) {
+        await supabase
+          .from('profiles')
+          .update({ community_joined_at: new Date().toISOString() })
+          .eq('id', session.user.id);
+      }
     }
   };
 
   const loadMessages = async () => {
-    const { data: messagesData, error: messagesError } = await supabase
+    if (!currentUserId) {
+      setLoading(false);
+      return;
+    }
+
+    // Get user's community join date
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('community_joined_at')
+      .eq('id', currentUserId)
+      .single();
+
+    const joinDate = profile?.community_joined_at;
+
+    // Only load messages from after the user joined
+    let query = supabase
       .from("community_messages")
       .select("*")
       .order("created_at", { ascending: true })
       .limit(100);
+
+    if (joinDate) {
+      query = query.gte("created_at", joinDate);
+    }
+
+    const { data: messagesData, error: messagesError } = await query;
 
     if (messagesError) {
       console.error("Error loading messages:", messagesError);
@@ -116,6 +150,13 @@ const Community = () => {
     }
 
     const userIds = [...new Set(messagesData?.map(m => m.user_id) || [])];
+    
+    if (userIds.length === 0) {
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+
     const { data: profilesData, error: profilesError } = await supabase
       .from("profiles")
       .select("id, full_name, avatar_url, email, is_public")
