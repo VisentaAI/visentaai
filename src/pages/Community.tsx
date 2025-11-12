@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash, Search, Pencil, X, Check } from "lucide-react";
+import { Send, Users, ArrowLeft, Trash2, PanelRightOpen, Smile, Trash, Search, Pencil, X, Check, Lock } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/contexts/PresenceContext";
@@ -379,19 +379,28 @@ const Community = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background w-full flex">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 w-full flex">
         <div className="flex-1 flex flex-col">
           <div className="container mx-auto px-4 py-24">
             <div className="max-w-4xl mx-auto">
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/")}
-                className="mb-4"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
-              </Button>
-              <Card className="h-[calc(100vh-16rem)] border-2 border-primary/20 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/")}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/private-communities")}
+                  className="gap-2 glass hover:bg-primary/10"
+                >
+                  <Lock className="h-4 w-4" />
+                  Private Communities
+                </Button>
+              </div>
+              <Card className="h-[calc(100vh-16rem)] border-2 border-primary/20 shadow-lg glass">
                 <CardHeader className="border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-2xl gradient-text flex items-center gap-2">

@@ -349,21 +349,37 @@ export default function PrivateCommunityChat() {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="h-screen flex flex-col relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 -z-10" />
+      <div className="absolute inset-0 ai-grid opacity-30 -z-10" />
+      
       {/* Header */}
-      <div className="bg-card/80 backdrop-blur-sm border-b border-border/50 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="glass border-b border-border/50 px-6 py-4 relative z-10">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/private-communities')}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/private-communities')}
+              className="hover:bg-primary/10 transition-all hover:scale-105"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <Avatar className="w-10 h-10">
+            <Avatar className="w-12 h-12 ring-2 ring-primary/20">
               <AvatarImage src={community.logo_url || ''} />
-              <AvatarFallback>{community.name[0]}</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
+                {community.name[0]}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-semibold text-lg">{community.name}</h1>
-              <p className="text-sm text-muted-foreground">{members.length} members</p>
+              <h1 className="font-semibold text-xl gradient-text">{community.name}</h1>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <span>{members.length} members</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -372,7 +388,7 @@ export default function PrivateCommunityChat() {
               <>
                 <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="hover:bg-primary/10 transition-all hover:scale-105">
                       <UserPlus className="w-5 h-5" />
                     </Button>
                   </DialogTrigger>
@@ -408,7 +424,7 @@ export default function PrivateCommunityChat() {
 
                 <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="hover:bg-primary/10 transition-all hover:scale-105">
                       <Settings className="w-5 h-5" />
                     </Button>
                   </DialogTrigger>
@@ -499,18 +515,20 @@ export default function PrivateCommunityChat() {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-6 py-4" ref={scrollRef}>
-        <div className="space-y-4 max-w-4xl mx-auto">
+      <ScrollArea className="flex-1 px-6 py-4 relative" ref={scrollRef}>
+        <div className="space-y-4 max-w-4xl mx-auto relative z-10">
           {messages.map((message) => {
             const isOwnMessage = message.sender_id === currentUserId;
             return (
               <div
                 key={message.id}
-                className={`flex gap-3 ${isOwnMessage ? 'flex-row-reverse' : ''}`}
+                className={`flex gap-3 animate-fade-in ${isOwnMessage ? 'flex-row-reverse' : ''}`}
               >
-                <Avatar className="w-8 h-8">
+                <Avatar className="w-9 h-9 ring-2 ring-primary/10">
                   <AvatarImage src={message.profiles.avatar_url || ''} />
-                  <AvatarFallback>{message.profiles.full_name[0]}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {message.profiles.full_name[0]}
+                  </AvatarFallback>
                 </Avatar>
                 <div className={`flex flex-col ${isOwnMessage ? 'items-end' : ''}`}>
                   <div className="flex items-center gap-2 mb-1">
@@ -520,13 +538,13 @@ export default function PrivateCommunityChat() {
                     </span>
                   </div>
                   <div
-                    className={`px-4 py-2 rounded-2xl max-w-md ${
+                    className={`px-4 py-2.5 rounded-2xl max-w-md transition-all hover:shadow-md ${
                       isOwnMessage
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card/80 backdrop-blur-sm border border-border/50'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'glass border border-border/50'
                     }`}
                   >
-                    <p className="text-sm">{message.content}</p>
+                    <p className="text-sm leading-relaxed">{message.content}</p>
                   </div>
                 </div>
               </div>
@@ -536,15 +554,15 @@ export default function PrivateCommunityChat() {
       </ScrollArea>
 
       {/* Input */}
-      <div className="bg-card/80 backdrop-blur-sm border-t border-border/50 px-6 py-4">
+      <div className="glass border-t border-border/50 px-6 py-4 relative z-10">
         <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1"
+            className="flex-1 glass focus:ring-2 focus:ring-primary/20 transition-all"
           />
-          <Button type="submit" size="icon">
+          <Button type="submit" size="icon" className="hover:scale-105 transition-all shadow-md">
             <Send className="w-5 h-5" />
           </Button>
         </form>

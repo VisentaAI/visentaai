@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Users, MessageSquare } from 'lucide-react';
+import { Plus, Users, MessageSquare, ArrowLeft } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface PrivateCommunity {
@@ -195,11 +195,24 @@ export default function PrivateCommunities() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 -z-10" />
+      <div className="absolute inset-0 ai-grid opacity-30 -z-10" />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/community")}
+          className="mb-6 hover:bg-primary/10 transition-all hover:scale-105"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Public Chat
+        </Button>
+        
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold gradient-text">
               Private Communities
             </h1>
             <p className="text-muted-foreground mt-2">
@@ -209,7 +222,7 @@ export default function PrivateCommunities() {
           
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2 shadow-md hover:scale-105 transition-all">
                 <Plus className="w-5 h-5" />
                 Create Community
               </Button>
@@ -272,13 +285,13 @@ export default function PrivateCommunities() {
         </div>
 
         {communities.length === 0 ? (
-          <Card className="p-12 text-center">
-            <MessageSquare className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <Card className="p-12 text-center glass animate-fade-in">
+            <MessageSquare className="w-16 h-16 mx-auto text-muted-foreground mb-4 animate-float" />
             <h3 className="text-xl font-semibold mb-2">No Communities Yet</h3>
             <p className="text-muted-foreground mb-6">
               Create your first private community to get started
             </p>
-            <Button onClick={() => setCreateDialogOpen(true)}>
+            <Button onClick={() => setCreateDialogOpen(true)} className="shadow-md hover:scale-105 transition-all">
               <Plus className="w-4 h-4 mr-2" />
               Create Community
             </Button>
@@ -288,13 +301,13 @@ export default function PrivateCommunities() {
             {communities.map((community) => (
               <Card
                 key={community.id}
-                className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 bg-card/50 backdrop-blur-sm border-border/50"
+                className="p-6 cursor-pointer hover-lift glass border-border/50 animate-fade-in"
                 onClick={() => navigate(`/private-community/${community.id}`)}
               >
                 <div className="flex items-start gap-4">
-                  <Avatar className="w-16 h-16">
+                  <Avatar className="w-16 h-16 ring-2 ring-primary/20">
                     <AvatarImage src={community.logo_url || ''} />
-                    <AvatarFallback className="text-xl bg-primary/10">
+                    <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
                       {community.name[0]}
                     </AvatarFallback>
                   </Avatar>
