@@ -34,7 +34,7 @@ const Friends = () => {
         .from('profiles')
         .select('id, full_name, avatar_url, email')
         .neq('id', session.user.id)
-        .or(`full_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`)
+        .ilike('full_name', `%${searchQuery}%`)
         .limit(10);
       
       if (error) throw error;
@@ -310,7 +310,6 @@ const Friends = () => {
                         </Avatar>
                         <div>
                           <p className="font-medium">{friendship.profile?.full_name || 'Anonymous'}</p>
-                          <p className="text-sm text-muted-foreground">{friendship.profile?.email}</p>
                         </div>
                       </div>
                       <Button
@@ -347,7 +346,6 @@ const Friends = () => {
                         </Avatar>
                         <div>
                           <p className="font-medium">{request.profile?.full_name || 'Anonymous'}</p>
-                          <p className="text-sm text-muted-foreground">{request.profile?.email}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -392,7 +390,6 @@ const Friends = () => {
                           </Avatar>
                           <div>
                             <p className="font-medium">{request.profile?.full_name || 'Anonymous'}</p>
-                            <p className="text-sm text-muted-foreground">{request.profile?.email}</p>
                           </div>
                         </div>
                         <Badge variant="secondary">Pending</Badge>
@@ -427,7 +424,6 @@ const Friends = () => {
                         </Avatar>
                         <div>
                           <p className="font-medium">{user.full_name || 'Anonymous'}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
                       </div>
                       <Button

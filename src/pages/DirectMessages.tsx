@@ -374,7 +374,7 @@ export default function DirectMessages() {
         .from("profiles")
         .select("id, full_name, avatar_url, email, is_public")
         .neq("id", currentUserId)
-        .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+        .ilike("full_name", `%${query}%`)
         .limit(10);
 
       if (error) throw error;
@@ -564,10 +564,9 @@ export default function DirectMessages() {
                              <AvatarImage src={displayAvatar} />
                              <AvatarFallback>{avatarFallback}</AvatarFallback>
                            </Avatar>
-                           <div className="flex-1 text-left">
-                             <p className="font-medium text-foreground">{displayName}</p>
-                             {isPublic && user.full_name && <p className="text-sm text-muted-foreground">{user.email}</p>}
-                           </div>
+                            <div className="flex-1 text-left">
+                              <p className="font-medium text-foreground">{displayName}</p>
+                            </div>
                          </button>
                        );
                      })}
