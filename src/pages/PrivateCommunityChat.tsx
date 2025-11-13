@@ -129,7 +129,7 @@ export default function PrivateCommunityChat() {
       // Load members
       const { data: membersData, error: membersError } = await supabase
         .from('private_community_members')
-        .select('*, profiles(full_name, avatar_url)')
+        .select('*, profiles!user_id(full_name, avatar_url)')
         .eq('community_id', communityId);
 
       if (membersError) throw membersError;
@@ -142,7 +142,7 @@ export default function PrivateCommunityChat() {
       // Load messages
       const { data: messagesData, error: messagesError } = await supabase
         .from('private_community_messages')
-        .select('*, profiles(full_name, avatar_url)')
+        .select('*, profiles!sender_id(full_name, avatar_url)')
         .eq('community_id', communityId)
         .order('created_at', { ascending: true });
 
