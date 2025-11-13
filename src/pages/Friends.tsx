@@ -66,10 +66,13 @@ const Friends = () => {
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
       
-      return data.map(friendship => ({
-        ...friendship,
-        profile: profileMap.get(friendship.friend_id)
-      }));
+      // Filter out friendships where the profile no longer exists (deleted accounts)
+      return data
+        .map(friendship => ({
+          ...friendship,
+          profile: profileMap.get(friendship.friend_id)
+        }))
+        .filter(friendship => friendship.profile !== undefined);
     },
     enabled: !!session
   });
@@ -97,10 +100,13 @@ const Friends = () => {
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
       
-      return data.map(request => ({
-        ...request,
-        profile: profileMap.get(request.user_id)
-      }));
+      // Filter out requests where the profile no longer exists (deleted accounts)
+      return data
+        .map(request => ({
+          ...request,
+          profile: profileMap.get(request.user_id)
+        }))
+        .filter(request => request.profile !== undefined);
     },
     enabled: !!session
   });
@@ -128,10 +134,13 @@ const Friends = () => {
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
       
-      return data.map(request => ({
-        ...request,
-        profile: profileMap.get(request.friend_id)
-      }));
+      // Filter out sent requests where the profile no longer exists (deleted accounts)
+      return data
+        .map(request => ({
+          ...request,
+          profile: profileMap.get(request.friend_id)
+        }))
+        .filter(request => request.profile !== undefined);
     },
     enabled: !!session
   });

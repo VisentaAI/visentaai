@@ -100,10 +100,13 @@ const StatusStories = () => {
 
     const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
     
-    const statusesWithProfiles = statuses.map(status => ({
-      ...status,
-      profiles: profilesMap.get(status.user_id) || { full_name: null, avatar_url: null }
-    }));
+    const statusesWithProfiles = statuses
+      .map(status => ({
+        ...status,
+        profiles: profilesMap.get(status.user_id) || null
+      }))
+      // Filter out statuses from deleted users (where profile is null)
+      .filter(status => status.profiles !== null) as Status[];
 
     const myStatusList = statusesWithProfiles.filter((s) => s.user_id === user.id);
     setMyStatuses(myStatusList);

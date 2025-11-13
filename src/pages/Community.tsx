@@ -174,7 +174,9 @@ const Community = () => {
       profiles: profilesMap.get(msg.user_id) || null,
     })) || [];
 
-    setMessages(messagesWithProfiles as CommunityMessage[]);
+    // Filter out messages from deleted users (where profile is null)
+    const validMessages = messagesWithProfiles.filter(msg => msg.profiles !== null);
+    setMessages(validMessages as CommunityMessage[]);
     setLoading(false);
   };
 
@@ -193,14 +195,17 @@ const Community = () => {
             .from("profiles")
             .select("full_name, avatar_url, email, is_public")
             .eq("id", payload.new.user_id)
-            .single();
+            .maybeSingle();
 
-          const newMsg = {
-            ...payload.new,
-            profiles: profileData,
-          } as CommunityMessage;
+          // Only add message if the profile exists (user not deleted)
+          if (profileData) {
+            const newMsg = {
+              ...payload.new,
+              profiles: profileData,
+            } as CommunityMessage;
 
-          setMessages((prev) => [...prev, newMsg]);
+            setMessages((prev) => [...prev, newMsg]);
+          }
         }
       )
       .on(
@@ -232,10 +237,13 @@ const Community = () => {
       .select("id, full_name, avatar_url, email, is_public")
       .in("id", Array.from(onlineUserIds));
 
-    const usersWithProfiles: OnlineUser[] = Array.from(onlineUserIds).map(userId => ({
-      user_id: userId,
-      profile: profilesData?.find(p => p.id === userId) || undefined,
-    }));
+    // Only show users whose profiles exist (filter out deleted accounts)
+    const usersWithProfiles: OnlineUser[] = Array.from(onlineUserIds)
+      .map(userId => ({
+        user_id: userId,
+        profile: profilesData?.find(p => p.id === userId) || undefined,
+      }))
+      .filter(user => user.profile !== undefined);
 
     setOnlineUsers(usersWithProfiles);
   };

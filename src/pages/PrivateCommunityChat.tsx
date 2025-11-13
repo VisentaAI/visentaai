@@ -133,7 +133,9 @@ export default function PrivateCommunityChat() {
         .eq('community_id', communityId);
 
       if (membersError) throw membersError;
-      setMembers(membersData || []);
+      // Filter out members whose profiles no longer exist (deleted accounts)
+      const validMembers = (membersData || []).filter(m => m.profiles !== null);
+      setMembers(validMembers);
 
       // Check if current user is admin
       const userMember = membersData?.find(m => m.user_id === currentUserId);
@@ -147,7 +149,9 @@ export default function PrivateCommunityChat() {
         .order('created_at', { ascending: true });
 
       if (messagesError) throw messagesError;
-      setMessages(messagesData || []);
+      // Filter out messages from users whose profiles no longer exist (deleted accounts)
+      const validMessages = (messagesData || []).filter(m => m.profiles !== null);
+      setMessages(validMessages);
 
       // Load all profiles for adding members
       if (userMember?.role === 'admin') {
@@ -194,9 +198,12 @@ export default function PrivateCommunityChat() {
             .from('profiles')
             .select('full_name, avatar_url')
             .eq('id', payload.new.sender_id)
-            .single();
+            .maybeSingle();
 
-          setMessages(prev => [...prev, { ...payload.new, profiles: profile } as Message]);
+          // Only add message if profile exists (user not deleted)
+          if (profile) {
+            setMessages(prev => [...prev, { ...payload.new, profiles: profile } as Message]);
+          }
         }
       )
       .subscribe();

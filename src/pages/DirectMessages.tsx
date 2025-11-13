@@ -217,7 +217,7 @@ export default function DirectMessages() {
             .from("profiles")
             .select("id, full_name, avatar_url, email, is_public")
             .eq("id", otherUserId)
-            .single();
+            .maybeSingle();
 
           const { data: lastMsg } = await supabase
             .from("direct_messages")
@@ -225,7 +225,7 @@ export default function DirectMessages() {
             .eq("conversation_id", conv.id)
             .order("created_at", { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           const { count: unreadCount } = await supabase
             .from("direct_messages")
@@ -243,7 +243,9 @@ export default function DirectMessages() {
         })
       );
 
-      setConversations(enrichedConversations);
+      // Filter out conversations where the other user no longer exists (deleted account)
+      const validConversations = enrichedConversations.filter(conv => conv.other_user !== null);
+      setConversations(validConversations);
     } catch (error) {
       console.error("Error loading conversations:", error);
       toast.error("Failed to load conversations");
