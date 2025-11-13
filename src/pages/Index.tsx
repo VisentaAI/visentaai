@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import StatusStories from "@/components/StatusStories";
 import Features from "@/components/Features";
+import LearningMaterials from "@/components/LearningMaterials";
 import About from "@/components/About";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
@@ -50,6 +51,7 @@ const Index = () => {
       <Hero />
       <StatusStories />
       <Features />
+      <LearningMaterials />
       <About />
       <Testimonials />
       <Footer />

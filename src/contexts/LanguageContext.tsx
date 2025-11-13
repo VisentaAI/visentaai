@@ -78,6 +78,9 @@ const translations = {
     'features.security.title': 'Guaranteed Security',
     'features.security.desc': 'Your data and privacy are protected with enterprise-level encryption.',
     
+    // Learning Materials
+    'learningMaterials': 'Learning Materials',
+    
     // About
     'about.title': 'About',
     'about.desc1': 'VisentaAI is a revolutionary AI-powered learning platform, developed to make education more personal, effective, and accessible to everyone.',
@@ -201,6 +204,9 @@ const translations = {
     'features.analytics.desc': 'Lacak perkembangan belajar Anda dengan visualisasi data yang detail dan mudah dipahami.',
     'features.security.title': 'Keamanan Terjamin',
     'features.security.desc': 'Data dan privasi Anda dilindungi dengan enkripsi tingkat enterprise.',
+    
+    // Learning Materials
+    'learningMaterials': 'Materi Pembelajaran',
     
     // About
     'about.title': 'Tentang',
