@@ -652,6 +652,7 @@ export type Database = {
           notification_enabled: boolean | null
           theme: string | null
           updated_at: string | null
+          verified: boolean | null
         }
         Insert: {
           avatar_url?: string | null
@@ -667,6 +668,7 @@ export type Database = {
           notification_enabled?: boolean | null
           theme?: string | null
           updated_at?: string | null
+          verified?: boolean | null
         }
         Update: {
           avatar_url?: string | null
@@ -682,6 +684,7 @@ export type Database = {
           notification_enabled?: boolean | null
           theme?: string | null
           updated_at?: string | null
+          verified?: boolean | null
         }
         Relationships: []
       }

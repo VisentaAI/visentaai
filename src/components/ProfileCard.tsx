@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Mail, MessageSquare, User } from "lucide-react";
+import { Mail, MessageSquare, User, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ProfileCardProps {
@@ -25,6 +25,7 @@ interface UserProfile {
   bio: string | null;
   is_public: boolean;
   email_visible: boolean;
+  verified: boolean;
 }
 
 export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
@@ -43,7 +44,7 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email, bio, is_public, email_visible")
+        .select("id, full_name, avatar_url, email, bio, is_public, email_visible, verified")
         .eq("id", userId)
         .single();
 
@@ -102,6 +103,9 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
             <h3 className="text-2xl font-semibold text-foreground flex items-center justify-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
               {displayName}
+              {profile.verified && (
+                <ShieldCheck className="h-5 w-5 text-primary" />
+              )}
             </h3>
             
             {displayEmail && (
