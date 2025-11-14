@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { UserBadge } from "@/components/UserBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +33,7 @@ const Friends = () => {
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email')
+        .select('id, full_name, avatar_url, email, verified')
         .neq('id', session.user.id)
         .ilike('full_name', `%${searchQuery}%`)
         .limit(10);
@@ -61,7 +62,7 @@ const Friends = () => {
       const friendIds = data.map(f => f.friend_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email')
+        .select('id, full_name, avatar_url, email, verified')
         .in('id', friendIds);
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -95,7 +96,7 @@ const Friends = () => {
       const userIds = data.map(f => f.user_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email')
+        .select('id, full_name, avatar_url, email, verified')
         .in('id', userIds);
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -129,7 +130,7 @@ const Friends = () => {
       const friendIds = data.map(f => f.friend_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email')
+        .select('id, full_name, avatar_url, email, verified')
         .in('id', friendIds);
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -308,8 +309,9 @@ const Friends = () => {
                             {friendship.profile?.full_name?.[0] || <User className="h-4 w-4" />}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="flex items-center gap-2">
                           <p className="font-medium">{friendship.profile?.full_name || 'Anonymous'}</p>
+                          <UserBadge verified={friendship.profile?.verified} />
                         </div>
                       </div>
                       <Button
@@ -344,8 +346,9 @@ const Friends = () => {
                             {request.profile?.full_name?.[0] || <User className="h-4 w-4" />}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="flex items-center gap-2">
                           <p className="font-medium">{request.profile?.full_name || 'Anonymous'}</p>
+                          <UserBadge verified={request.profile?.verified} />
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -388,8 +391,9 @@ const Friends = () => {
                               {request.profile?.full_name?.[0] || <User className="h-4 w-4" />}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
+                          <div className="flex items-center gap-2">
                             <p className="font-medium">{request.profile?.full_name || 'Anonymous'}</p>
+                            <UserBadge verified={request.profile?.verified} />
                           </div>
                         </div>
                         <Badge variant="secondary">Pending</Badge>
@@ -422,8 +426,9 @@ const Friends = () => {
                             {user.full_name?.[0] || <User className="h-4 w-4" />}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="flex items-center gap-2">
                           <p className="font-medium">{user.full_name || 'Anonymous'}</p>
+                          <UserBadge verified={user.verified} />
                         </div>
                       </div>
                       <Button
