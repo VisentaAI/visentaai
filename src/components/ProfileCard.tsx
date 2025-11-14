@@ -10,9 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Mail, MessageSquare, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import badgeGray from "@/assets/badge-gray.png";
-import badgeBlue from "@/assets/badge-blue.png";
-import badgeYellow from "@/assets/badge-yellow.png";
+import { UserBadge } from "@/components/UserBadge";
 
 interface ProfileCardProps {
   userId: string;
@@ -28,12 +26,11 @@ interface UserProfile {
   bio: string | null;
   is_public: boolean;
   email_visible: boolean;
-  verified: boolean;
+  badge_type: 'default' | 'verified' | 'admin';
 }
 
 export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -48,22 +45,12 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email, bio, is_public, email_visible, verified")
+        .select("id, full_name, avatar_url, email, bio, is_public, email_visible, badge_type")
         .eq("id", userId)
         .single();
 
       if (error) throw error;
       setProfile(data);
-
-      // Check if user has admin role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .single();
-      
-      setIsAdmin(!!roleData);
     } catch (error) {
       console.error("Error loading profile:", error);
     } finally {
@@ -101,13 +88,6 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
     ? (profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || "U")
     : "A";
 
-  // Determine badge based on role/verification
-  const getBadge = () => {
-    if (isAdmin) return badgeYellow; // Yellow for admins
-    if (profile.verified) return badgeBlue; // Blue for verified creators
-    return badgeGray; // Gray for regular users
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -124,11 +104,7 @@ export function ProfileCard({ userId, open, onOpenChange }: ProfileCardProps) {
             <h3 className="text-2xl font-semibold text-foreground flex items-center justify-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
               {displayName}
-              <img 
-                src={getBadge()} 
-                alt={isAdmin ? "Admin Badge" : profile.verified ? "Verified Badge" : "User Badge"} 
-                className="h-5 w-5"
-              />
+              <UserBadge badgeType={profile.badge_type} className="h-5 w-5" />
             </h3>
             
             {displayEmail && (
