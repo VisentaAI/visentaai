@@ -27,9 +27,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import DirectMessages from "./pages/DirectMessages";
-import PrivateCommunities from "./pages/PrivateCommunities";
-import PrivateCommunityChat from "./pages/PrivateCommunityChat";
-import CommunityInvite from "./pages/CommunityInvite";
+import Groups from "./pages/Groups";
+import GroupChat from "./pages/GroupChat";
+import GroupInvite from "./pages/GroupInvite";
 import Status from "./pages/Status";
 
 const queryClient = new QueryClient();
@@ -64,9 +64,9 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/community" element={<Community />} />
           <Route path="/messages" element={<DirectMessages />} />
-          <Route path="/private-communities" element={<PrivateCommunities />} />
-            <Route path="/private-community/:communityId" element={<PrivateCommunityChat />} />
-            <Route path="/invite" element={<CommunityInvite />} />
+          <Route path="/groups" element={<Groups />} />
+            <Route path="/group/:groupId" element={<GroupChat />} />
+            <Route path="/group-invite" element={<GroupInvite />} />
             <Route path="/status" element={<Status />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

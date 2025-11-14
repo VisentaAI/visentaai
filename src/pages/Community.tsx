@@ -412,11 +412,11 @@ const Community = () => {
                   Back to Home
                 </Button>
                 <Button
-                  onClick={() => navigate("/private-communities")}
+                  onClick={() => navigate("/groups")}
                   className="gap-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:shadow-lg transition-all hover:scale-105 shadow-md w-full sm:w-auto"
                 >
                   <Lock className="h-4 w-4" />
-                  Private Communities
+                  Grup
                 </Button>
               </div>
               <Card className="h-[calc(100vh-16rem)] border-2 border-primary/20 shadow-lg glass">
