@@ -215,7 +215,7 @@ export default function DirectMessages() {
           
           const { data: profile } = await supabase
             .from("profiles")
-            .select("id, full_name, avatar_url, email, is_public")
+            .select("id, full_name, avatar_url, email, is_public, verified")
             .eq("id", otherUserId)
             .maybeSingle();
 
