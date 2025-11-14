@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, Shield, ShieldCheck, ShieldX, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Shield, Search, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,13 +16,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UserBadge } from "@/components/UserBadge";
+import type { Database } from "@/integrations/supabase/types";
+
+type BadgeType = Database["public"]["Enums"]["badge_type"];
 
 interface User {
   id: string;
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
-  verified: boolean;
+  badge_type: BadgeType;
   created_at: string;
 }
 
@@ -67,7 +78,7 @@ export default function AdminDashboard() {
   const loadUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, full_name, avatar_url, verified, created_at")
+      .select("id, email, full_name, avatar_url, badge_type, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -79,18 +90,18 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  const toggleVerification = async (userId: string, currentStatus: boolean) => {
+  const updateBadgeType = async (userId: string, newBadgeType: BadgeType) => {
     setUpdating(userId);
     const { error } = await supabase
       .from("profiles")
-      .update({ verified: !currentStatus })
+      .update({ badge_type: newBadgeType })
       .eq("id", userId);
 
     if (error) {
-      toast.error("Failed to update verification status");
+      toast.error("Failed to update badge type");
       console.error(error);
     } else {
-      toast.success(`User ${!currentStatus ? 'verified' : 'unverified'} successfully`);
+      toast.success("Badge type updated successfully");
       loadUsers();
     }
     setUpdating(null);
@@ -178,51 +189,63 @@ export default function AdminDashboard() {
                                   {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="font-medium">
-                                {user.full_name || "No name"}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">
+                                  {user.full_name || "No name"}
+                                </span>
+                                <UserBadge badgeType={user.badge_type} />
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {user.email}
                           </TableCell>
                           <TableCell>
-                            {user.verified ? (
-                              <Badge variant="default" className="gap-1">
-                                <ShieldCheck className="h-3 w-3" />
-                                Verified
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary" className="gap-1">
-                                <ShieldX className="h-3 w-3" />
-                                Unverified
-                              </Badge>
-                            )}
+                            <Badge 
+                              variant={
+                                user.badge_type === 'admin' ? 'default' : 
+                                user.badge_type === 'verified' ? 'secondary' : 
+                                'outline'
+                              }
+                            >
+                              {user.badge_type === 'admin' ? '⭐ Admin' : 
+                               user.badge_type === 'verified' ? '✓ Verified' : 
+                               'Regular User'}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant={user.verified ? "outline" : "default"}
-                              size="sm"
-                              onClick={() => toggleVerification(user.id, user.verified)}
+                            <Select
+                              value={user.badge_type}
+                              onValueChange={(value: BadgeType) => updateBadgeType(user.id, value)}
                               disabled={updating === user.id}
                             >
-                              {updating === user.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : user.verified ? (
-                                <>
-                                  <ShieldX className="h-4 w-4 mr-2" />
-                                  Unverify
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldCheck className="h-4 w-4 mr-2" />
-                                  Verify
-                                </>
-                              )}
-                            </Button>
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="default">
+                                  <div className="flex items-center gap-2">
+                                    <UserBadge badgeType="default" />
+                                    <span>Regular</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="verified">
+                                  <div className="flex items-center gap-2">
+                                    <UserBadge badgeType="verified" />
+                                    <span>Verified</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="admin">
+                                  <div className="flex items-center gap-2">
+                                    <UserBadge badgeType="admin" />
+                                    <span>Admin</span>
+                                  </div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                         </TableRow>
                       ))
@@ -234,8 +257,9 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>Total Users: {users.length}</span>
                 <span>
-                  Verified: {users.filter(u => u.verified).length} | 
-                  Unverified: {users.filter(u => !u.verified).length}
+                  Regular: {users.filter(u => u.badge_type === 'default').length} | 
+                  Verified: {users.filter(u => u.badge_type === 'verified').length} | 
+                  Admin: {users.filter(u => u.badge_type === 'admin').length}
                 </span>
               </div>
             </CardContent>

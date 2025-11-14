@@ -640,6 +640,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          badge_type: Database["public"]["Enums"]["badge_type"]
           bio: string | null
           community_joined_at: string | null
           created_at: string | null
@@ -656,6 +657,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          badge_type?: Database["public"]["Enums"]["badge_type"]
           bio?: string | null
           community_joined_at?: string | null
           created_at?: string | null
@@ -672,6 +674,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          badge_type?: Database["public"]["Enums"]["badge_type"]
           bio?: string | null
           community_joined_at?: string | null
           created_at?: string | null
@@ -822,6 +825,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      badge_type: "default" | "verified" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -950,6 +954,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      badge_type: ["default", "verified", "admin"],
     },
   },
 } as const
