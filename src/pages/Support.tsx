@@ -21,10 +21,12 @@ const Support = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: "Pesan Terkirim!",
-      description: "Tim support kami akan segera menghubungi Anda.",
+      title: "Demo Form",
+      description: "Formulir ini hanya demo. Silakan email langsung ke hello@visentaai.com untuk dukungan sebenarnya.",
+      variant: "default",
     });
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    // Open email client as alternative
+    window.location.href = `mailto:hello@visentaai.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(formData.message)}`;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
