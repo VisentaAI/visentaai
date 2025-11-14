@@ -17,6 +17,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { MessageReactions } from "@/components/MessageReactions";
+import { UserBadge } from "@/components/UserBadge";
 import { z } from "zod";
 
 interface Conversation {
@@ -30,6 +31,7 @@ interface Conversation {
     avatar_url: string | null;
     email: string | null;
     is_public: boolean | null;
+    verified?: boolean | null;
   };
   last_message?: string;
   unread_count?: number;
@@ -58,6 +60,7 @@ interface User {
   avatar_url: string | null;
   email: string | null;
   is_public: boolean | null;
+  verified?: boolean | null;
 }
 
 export default function DirectMessages() {
@@ -372,7 +375,7 @@ export default function DirectMessages() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email, is_public")
+        .select("id, full_name, avatar_url, email, is_public, verified")
         .neq("id", currentUserId)
         .ilike("full_name", `%${query}%`)
         .limit(10);
@@ -565,7 +568,10 @@ export default function DirectMessages() {
                              <AvatarFallback>{avatarFallback}</AvatarFallback>
                            </Avatar>
                             <div className="flex-1 text-left">
-                              <p className="font-medium text-foreground">{displayName}</p>
+                              <p className="font-medium text-foreground flex items-center gap-1">
+                                {displayName}
+                                <UserBadge verified={user.verified} className="h-3 w-3" />
+                              </p>
                             </div>
                          </button>
                        );
@@ -609,9 +615,12 @@ export default function DirectMessages() {
                            <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-background bg-green-500 animate-pulse" />
                          )}
                        </div>
-                       <div className="flex-1 text-left min-w-0">
-                         <div className="flex items-center justify-between mb-1">
-                           <p className="font-semibold truncate text-base">{displayName}</p>
+                        <div className="flex-1 text-left min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="font-semibold truncate text-base flex items-center gap-1">
+                              {displayName}
+                              <UserBadge verified={conv.other_user?.verified} className="h-3 w-3" />
+                            </p>
                            {conv.unread_count! > 0 && (
                              <span className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-xs font-bold rounded-full px-2.5 py-1 min-w-[24px] text-center shadow-md animate-pulse">
                                {conv.unread_count}
@@ -676,14 +685,15 @@ export default function DirectMessages() {
                          <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-background bg-green-500 animate-pulse shadow-lg" />
                        )}
                      </button>
-                     <div className="flex-1 min-w-0">
-                       <p className="font-bold text-lg text-foreground truncate">
-                         {(activeConversationData?.other_user?.is_public ?? true)
-                           ? (activeConversationData?.other_user?.full_name ||
-                              activeConversationData?.other_user?.email ||
-                              "Anonymous")
-                           : "Anonymous"}
-                       </p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-lg text-foreground truncate flex items-center gap-2">
+                          {(activeConversationData?.other_user?.is_public ?? true)
+                            ? (activeConversationData?.other_user?.full_name ||
+                               activeConversationData?.other_user?.email ||
+                               "Anonymous")
+                            : "Anonymous"}
+                          <UserBadge verified={activeConversationData?.other_user?.verified} className="h-4 w-4" />
+                        </p>
                        <p className="text-sm text-muted-foreground">
                          {onlineUserIds.has(activeConversationData?.other_user?.id || "") ? (
                            <span className="text-green-500 font-medium flex items-center gap-1">
