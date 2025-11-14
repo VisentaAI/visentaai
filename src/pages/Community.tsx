@@ -18,6 +18,7 @@ import { useUnreadCounts } from "@/hooks/useUnreadCounts";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { MessageReactions } from "@/components/MessageReactions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { UserBadge } from "@/components/UserBadge";
 import { z } from "zod";
 
 interface CommunityMessage {
@@ -31,6 +32,7 @@ interface CommunityMessage {
     avatar_url: string | null;
     email: string | null;
     is_public: boolean | null;
+    verified?: boolean | null;
   };
 }
 
@@ -48,6 +50,7 @@ interface OnlineUser {
     avatar_url: string | null;
     email: string | null;
     is_public: boolean | null;
+    verified?: boolean | null;
   };
 }
 
@@ -161,7 +164,7 @@ const Community = () => {
 
     const { data: profilesData, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, email, is_public")
+      .select("id, full_name, avatar_url, email, is_public, verified")
       .in("id", userIds);
 
     if (profilesError) {
@@ -193,7 +196,7 @@ const Community = () => {
         async (payload) => {
           const { data: profileData } = await supabase
             .from("profiles")
-            .select("full_name, avatar_url, email, is_public")
+            .select("full_name, avatar_url, email, is_public, verified")
             .eq("id", payload.new.user_id)
             .maybeSingle();
 
@@ -234,7 +237,7 @@ const Community = () => {
 
     const { data: profilesData } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, email, is_public")
+      .select("id, full_name, avatar_url, email, is_public, verified")
       .in("id", Array.from(onlineUserIds));
 
     // Only show users whose profiles exist (filter out deleted accounts)
@@ -515,8 +518,9 @@ const Community = () => {
                           </Tooltip>
                         </TooltipProvider>
                         <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"} max-w-[70%]`}>
-                          <span className="text-xs font-medium mb-1 text-foreground">
+                          <span className="text-xs font-medium mb-1 text-foreground flex items-center gap-1">
                             {displayName}
+                            <UserBadge verified={message.profiles?.verified} className="h-3 w-3" />
                           </span>
                           {editingMessageId === message.id ? (
                             <div className="flex items-center gap-2 w-full">
@@ -698,7 +702,10 @@ const Community = () => {
                             />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-foreground">{displayName}</p>
+                            <p className="text-sm font-medium text-foreground flex items-center gap-1">
+                              {displayName}
+                              {!isOwn && <UserBadge verified={user.profile?.verified} className="h-3 w-3" />}
+                            </p>
                             <p className="text-xs text-muted-foreground">Online</p>
                           </div>
                         </button>
