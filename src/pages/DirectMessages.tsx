@@ -31,7 +31,7 @@ interface Conversation {
     avatar_url: string | null;
     email: string | null;
     is_public: boolean | null;
-    verified?: boolean | null;
+    badge_type?: 'default' | 'verified' | 'admin';
   };
   last_message?: string;
   unread_count?: number;
@@ -60,7 +60,7 @@ interface User {
   avatar_url: string | null;
   email: string | null;
   is_public: boolean | null;
-  verified?: boolean | null;
+  badge_type?: 'default' | 'verified' | 'admin';
 }
 
 export default function DirectMessages() {
@@ -218,7 +218,7 @@ export default function DirectMessages() {
           
           const { data: profile } = await supabase
             .from("profiles")
-            .select("id, full_name, avatar_url, email, is_public, verified")
+            .select("id, full_name, avatar_url, email, is_public, badge_type")
             .eq("id", otherUserId)
             .maybeSingle();
 
@@ -375,7 +375,7 @@ export default function DirectMessages() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, email, is_public, verified")
+        .select("id, full_name, avatar_url, email, is_public, badge_type")
         .neq("id", currentUserId)
         .ilike("full_name", `%${query}%`)
         .limit(10);
@@ -570,7 +570,7 @@ export default function DirectMessages() {
                             <div className="flex-1 text-left">
                               <p className="font-medium text-foreground flex items-center gap-1">
                                 {displayName}
-                                <UserBadge verified={user.verified} className="h-3 w-3" />
+                                <UserBadge badgeType={user.badge_type} className="h-3 w-3" />
                               </p>
                             </div>
                          </button>
@@ -619,7 +619,7 @@ export default function DirectMessages() {
                           <div className="flex items-center justify-between mb-1">
                             <p className="font-semibold truncate text-base flex items-center gap-1">
                               {displayName}
-                              <UserBadge verified={conv.other_user?.verified} className="h-3 w-3" />
+                              <UserBadge badgeType={conv.other_user?.badge_type} className="h-3 w-3" />
                             </p>
                            {conv.unread_count! > 0 && (
                              <span className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-xs font-bold rounded-full px-2.5 py-1 min-w-[24px] text-center shadow-md animate-pulse">
@@ -692,7 +692,7 @@ export default function DirectMessages() {
                                activeConversationData?.other_user?.email ||
                                "Anonymous")
                             : "Anonymous"}
-                          <UserBadge verified={activeConversationData?.other_user?.verified} className="h-4 w-4" />
+                          <UserBadge badgeType={activeConversationData?.other_user?.badge_type} className="h-4 w-4" />
                         </p>
                        <p className="text-sm text-muted-foreground">
                          {onlineUserIds.has(activeConversationData?.other_user?.id || "") ? (

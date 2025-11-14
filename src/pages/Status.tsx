@@ -92,7 +92,7 @@ const Status = () => {
     const userIds = [...new Set(statuses.map(s => s.user_id))];
     const { data: profilesData } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, verified")
+      .select("id, full_name, avatar_url, badge_type")
       .in("id", userIds);
 
     const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);

@@ -33,7 +33,7 @@ const Friends = () => {
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email, verified')
+        .select('id, full_name, avatar_url, email, badge_type')
         .neq('id', session.user.id)
         .ilike('full_name', `%${searchQuery}%`)
         .limit(10);
@@ -62,7 +62,7 @@ const Friends = () => {
       const friendIds = data.map(f => f.friend_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email, verified')
+        .select('id, full_name, avatar_url, email, badge_type')
         .in('id', friendIds);
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -96,7 +96,7 @@ const Friends = () => {
       const userIds = data.map(f => f.user_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email, verified')
+        .select('id, full_name, avatar_url, email, badge_type')
         .in('id', userIds);
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -130,7 +130,7 @@ const Friends = () => {
       const friendIds = data.map(f => f.friend_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, email, verified')
+        .select('id, full_name, avatar_url, email, badge_type')
         .in('id', friendIds);
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -311,7 +311,7 @@ const Friends = () => {
                         </Avatar>
                         <div className="flex items-center gap-2">
                           <p className="font-medium">{friendship.profile?.full_name || 'Anonymous'}</p>
-                          <UserBadge verified={friendship.profile?.verified} />
+                          <UserBadge badgeType={friendship.profile?.badge_type} />
                         </div>
                       </div>
                       <Button
@@ -348,7 +348,7 @@ const Friends = () => {
                         </Avatar>
                         <div className="flex items-center gap-2">
                           <p className="font-medium">{request.profile?.full_name || 'Anonymous'}</p>
-                          <UserBadge verified={request.profile?.verified} />
+                          <UserBadge badgeType={request.profile?.badge_type} />
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -393,7 +393,7 @@ const Friends = () => {
                           </Avatar>
                           <div className="flex items-center gap-2">
                             <p className="font-medium">{request.profile?.full_name || 'Anonymous'}</p>
-                            <UserBadge verified={request.profile?.verified} />
+                            <UserBadge badgeType={request.profile?.badge_type} />
                           </div>
                         </div>
                         <Badge variant="secondary">Pending</Badge>
@@ -428,7 +428,7 @@ const Friends = () => {
                         </Avatar>
                         <div className="flex items-center gap-2">
                           <p className="font-medium">{user.full_name || 'Anonymous'}</p>
-                          <UserBadge verified={user.verified} />
+                          <UserBadge badgeType={user.badge_type} />
                         </div>
                       </div>
                       <Button
