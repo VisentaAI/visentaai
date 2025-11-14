@@ -16,7 +16,7 @@ const Blog = () => {
       id: 1,
       title: "Masa Depan Pendidikan dengan AI",
       excerpt: "Bagaimana kecerdasan buatan mengubah cara kita belajar dan mengajar di era digital.",
-      author: "RestuAlfauzi",
+      author: "Tim VisentaAI",
       date: "15 Januari 2025",
       category: "Teknologi",
       image: aiEducationImg,
