@@ -57,7 +57,7 @@ const Auth = () => {
           toast.error(error.message);
         }
       } else {
-        toast.success("Pendaftaran berhasil! Silakan cek email Anda untuk verifikasi.");
+        toast.success("Pendaftaran berhasil! Anda sudah bisa login sekarang.");
       }
     } catch (error: any) {
       toast.error("Terjadi kesalahan saat mendaftar");
