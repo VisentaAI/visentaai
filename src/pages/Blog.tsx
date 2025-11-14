@@ -17,7 +17,7 @@ const Blog = () => {
       title: "Masa Depan Pendidikan dengan AI",
       excerpt: "Bagaimana kecerdasan buatan mengubah cara kita belajar dan mengajar di era digital.",
       author: "Tim VisentaAI",
-      date: "15 Januari 2025",
+      date: "11 November 2025",
       category: "Teknologi",
       image: aiEducationImg,
       fullContent: {
@@ -48,7 +48,7 @@ const Blog = () => {
       title: "Tips Belajar Efektif dengan AI",
       excerpt: "Strategi dan metode untuk memaksimalkan pembelajaran menggunakan teknologi AI.",
       author: "Tim VisentaAI",
-      date: "10 Januari 2025",
+      date: "11 November 2025",
       category: "Tutorial",
       image: effectiveLearningImg,
       fullContent: {
@@ -83,7 +83,7 @@ const Blog = () => {
       title: "Personalisasi Pembelajaran: Kunci Sukses",
       excerpt: "Mengapa setiap siswa membutuhkan pendekatan pembelajaran yang unik dan personal.",
       author: "Tim VisentaAI",
-      date: "5 Januari 2025",
+      date: "11 November 2025",
       category: "Edukasi",
       image: personalizedLearningImg,
       fullContent: {
