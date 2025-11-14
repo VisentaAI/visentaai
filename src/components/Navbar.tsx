@@ -221,9 +221,9 @@ const Navbar = () => {
                 <Clock className="h-4 w-4 mr-2" />
                 <span>Status</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/private-communities")} className="cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate("/groups")} className="cursor-pointer">
                 <Shield className="h-4 w-4 mr-2" />
-                <span>Private Communities</span>
+                <span>Grup</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -353,9 +353,9 @@ const Navbar = () => {
                   <Clock className="h-4 w-4 mr-2" />
                   <span>Status</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { navigate("/private-communities"); setIsMobileMenuOpen(false); }} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => { navigate("/groups"); setIsMobileMenuOpen(false); }} className="cursor-pointer">
                   <Shield className="h-4 w-4 mr-2" />
-                  <span>Private Communities</span>
+                  <span>Grup</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
